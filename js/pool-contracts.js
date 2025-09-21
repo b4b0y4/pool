@@ -1099,6 +1099,8 @@ const abi = {
 };
 
 const poolContracts = {
-  abi: abi.opVault,
-  address: "0x2998c1685E308661123F64B333767266035f5020",
+  OPVAULT: {
+    abi: abi.opVault,
+    address: "0x2998c1685E308661123F64B333767266035f5020",
+  },
 };
