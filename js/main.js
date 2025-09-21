@@ -6,6 +6,11 @@ import { networkConfigs } from "./connect-config.js";
 
 const wallet = new ConnectWallet();
 
+const tokenIconMap = {
+  WETH: "./assets/img/weth.png",
+  przWETH: "./assets/img/przweth.png",
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   // #region Elements
   const elements = {
@@ -20,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "#deposit-accordion .balance-display span",
       ),
       balance: document.querySelector("#deposit-asset-balance"),
+      icon: document.querySelector("#deposit-token-icon"),
       input: document.querySelector("#deposit-amount-input"),
       maxBtn: document.querySelector("#deposit-max-btn"),
       executeBtn: document.querySelector("#deposit-execute-btn"),
@@ -31,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "#redeem-accordion .balance-display span",
       ),
       balance: document.querySelector("#redeem-shares-balance"),
+      icon: document.querySelector("#redeem-token-icon"),
       input: document.querySelector("#redeem-amount-input"),
       maxBtn: document.querySelector("#redeem-max-btn"),
       executeBtn: document.querySelector("#redeem-execute-btn"),
@@ -115,6 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
       elements.networkLogo.style.display = "none";
       elements.deposit.toggleBtn.disabled = true;
       elements.redeem.toggleBtn.disabled = true;
+      elements.deposit.icon.style.display = "none";
+      elements.redeem.icon.style.display = "none";
       return;
     }
 
@@ -163,6 +172,8 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.redeem.accordion.classList.remove("open");
         elements.deposit.accordion.style.maxHeight = null;
         elements.redeem.accordion.style.maxHeight = null;
+        elements.deposit.icon.style.display = "none";
+        elements.redeem.icon.style.display = "none";
         return;
       }
 
@@ -221,7 +232,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
       elements.redeem.balanceLabel.innerText = `${vaultSymbol}:`;
       elements.redeem.input.placeholder = `Enter ${vaultSymbol} amount`;
-      elements.redeem.executeBtn.innerText = `Withdraw ${vaultSymbol}`;
+      elements.redeem.executeBtn.innerText = `Redeem ${vaultSymbol}`;
+
+      // Update icons
+      const assetIconUrl = tokenIconMap[assetSymbol];
+      if (assetIconUrl) {
+        elements.deposit.icon.src = assetIconUrl;
+        elements.deposit.icon.style.display = "block";
+      } else {
+        elements.deposit.icon.style.display = "none";
+      }
+
+      const vaultIconUrl = tokenIconMap[vaultSymbol];
+      if (vaultIconUrl) {
+        elements.redeem.icon.src = vaultIconUrl;
+        elements.redeem.icon.style.display = "block";
+      } else {
+        elements.redeem.icon.style.display = "none";
+      }
     } catch (error) {
       console.error("Failed to update balances:", error);
       elements.deposit.balance.innerText = "Error";

@@ -168,6 +168,15 @@
         font-size: 1em;
         opacity: 0.8;
       }
+      .balance-label-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .token-icon {
+        width: 24px;
+        height: 24px;
+      }
       .input-group {
         display: flex;
         align-items: center;
@@ -287,7 +296,14 @@
       <!-- Deposit Accordion Content (hidden by default) -->
       <div id="deposit-accordion" class="accordion-content">
         <div class="balance-display">
-          <span>WETH:</span>
+          <div class="balance-label-group">
+            <img
+              id="deposit-token-icon"
+              class="token-icon"
+              style="display: none"
+            />
+            <span>WETH:</span>
+          </div>
           <strong id="deposit-asset-balance">0</strong>
         </div>
         <div class="input-group">
@@ -307,7 +323,14 @@
       <!-- Redeem Accordion Content (hidden by default) -->
       <div id="redeem-accordion" class="accordion-content">
         <div class="balance-display">
-          <span>przWETH:</span>
+          <div class="balance-label-group">
+            <img
+              id="redeem-token-icon"
+              class="token-icon"
+              style="display: none"
+            />
+            <span>przWETH:</span>
+          </div>
           <strong id="redeem-shares-balance">0</strong>
         </div>
         <div class="input-group">
