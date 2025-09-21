@@ -37,6 +37,7 @@
       content="https://b4b0y4.github.io/dappkit/assets/img/dappkit.png"
     />
     <title>dappkit</title>
+    <link rel="icon" href="./assets/img/pool.png" type="image/png" />
     <link rel="stylesheet" href="./assets/css/theme.css" />
     <link rel="stylesheet" href="./assets/css/notifications.css" />
     <link rel="stylesheet" href="./assets/css/connect.css" />
@@ -87,9 +88,18 @@
         align-items: center;
         width: 100%;
       }
-      .network-logo {
+      .header-right-group {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .page-logo {
         width: 32px;
         height: 32px;
+      }
+      .network-logo {
+        width: 26px;
+        height: 26px;
         border-radius: 50%;
       }
 
@@ -217,58 +227,61 @@
 
     <div class="vault-interaction">
       <div class="vault-header">
-        <img id="network-logo" src="" alt="Network" class="network-logo" />
-        <!-- Theme Button -->
-        <button id="theme-btn" aria-label="Toggle theme">
-          <svg
-            id="theme-light"
-            xmlns="http://www.w3.org/2000/svg"
-            width="26"
-            height="26"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.33"
-          >
-            <circle cx="8" cy="8" r="3.33" />
-            <path
-              d="M8 0.67v1.33M8 14v1.33M2.81 2.81l0.95 0.95M12.24 12.24l0.95 0.95M0.67 8h1.33M14 8h1.33M2.81 13.19l0.95-0.95M12.24 3.76l0.95-0.95"
-            />
-          </svg>
-          <svg
-            id="theme-dark"
-            xmlns="http://www.w3.org/2000/svg"
-            width="26"
-            height="26"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.33"
-          >
-            <path d="M14 8.53A6 6 0 1 1 7.47 2 4.67 4.67 0 0 0 14 8.53z" />
-          </svg>
-          <svg
-            id="theme-system"
-            xmlns="http://www.w3.org/2000/svg"
-            width="26"
-            height="26"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.33"
-          >
-            <rect
-              x="1.33"
-              y="2"
-              width="13.33"
-              height="9.33"
-              rx="1.33"
-              ry="1.33"
-            />
-            <line x1="5.33" y1="14" x2="10.67" y2="14" />
-            <line x1="8" y1="11.33" x2="8" y2="14" />
-          </svg>
-        </button>
+        <img src="./assets/img/pool.png" alt="Logo" class="page-logo" />
+        <div class="header-right-group">
+          <img id="network-logo" src="" alt="Network" class="network-logo" />
+          <!-- Theme Button -->
+          <button id="theme-btn" aria-label="Toggle theme">
+            <svg
+              id="theme-light"
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.33"
+            >
+              <circle cx="8" cy="8" r="3.33" />
+              <path
+                d="M8 0.67v1.33M8 14v1.33M2.81 2.81l0.95 0.95M12.24 12.24l0.95 0.95M0.67 8h1.33M14 8h1.33M2.81 13.19l0.95-0.95M12.24 3.76l0.95-0.95"
+              />
+            </svg>
+            <svg
+              id="theme-dark"
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.33"
+            >
+              <path d="M14 8.53A6 6 0 1 1 7.47 2 4.67 4.67 0 0 0 14 8.53z" />
+            </svg>
+            <svg
+              id="theme-system"
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.33"
+            >
+              <rect
+                x="1.33"
+                y="2"
+                width="13.33"
+                height="9.33"
+                rx="1.33"
+                ry="1.33"
+              />
+              <line x1="5.33" y1="14" x2="10.67" y2="14" />
+              <line x1="8" y1="11.33" x2="8" y2="14" />
+            </svg>
+          </button>
+        </div>
       </div>
       <div class="row">
         <button id="deposit-toggle-btn" class="btn">Deposit</button>
