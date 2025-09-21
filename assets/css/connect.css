@@ -5,7 +5,7 @@
     var(--connect-color-btn) 88%,
     black 12%
   );
-  --connect-shadow: 0 2px 5px color-mix(in srgb, black 20%, transparent);
+  --connect-shadow: 0 0 0 1px color-mix(in srgb, black 10%, transparent);
   --connect-dot: 46, 204, 113;
 }
 
@@ -16,7 +16,7 @@
     var(--connect-color-btn) 86%,
     white 14%
   );
-  --connect-shadow: 0 2px 5px color-mix(in srgb, white 15%, transparent);
+  --connect-shadow: 0 0 0 0.5px color-mix(in srgb, white 15%, transparent);
 }
 
 .connect-wrapper {
