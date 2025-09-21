@@ -6,26 +6,35 @@
 
     <!-- Primary Meta -->
     <meta name="title" content="pool" />
-    <meta name="description" content="A poolTogether interface." />
+    <meta
+      name="description"
+      content="A lightweight interface for interacting with WETH PoolTogether V5 vaults."
+    />
 
     <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://b4b0y4.github.io/pool" />
+    <meta property="og:url" content="https://pool.baboya.eth.limo" />
     <meta property="og:title" content="pool" />
-    <meta property="og:description" content="A poolTogether interface." />
+    <meta
+      property="og:description"
+      content="A lightweight interface for interacting with WETH PoolTogether V5 vaults."
+    />
     <meta
       property="og:image"
-      content="https://b4b0y4.github.io/pool/assets/img/pool.png"
+      content="https://pool.baboya.eth.limo/assets/img/pool.png"
     />
 
     <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://b4b0y4.github.io/pool" />
+    <meta property="twitter:url" content="https://pool.baboya.eth.limo" />
     <meta name="twitter:title" content="pool" />
-    <meta name="twitter:description" content="A poolTogether interface." />
+    <meta
+      name="twitter:description"
+      content="A lightweight interface for interacting with WETH PoolTogether V5 vaults."
+    />
     <meta
       name="twitter:image"
-      content="https://b4b0y4.github.io/pool/assets/img/pool.png"
+      content="https://pool.baboya.eth.limo/assets/img/pool.png"
     />
     <title>pool</title>
     <link rel="icon" href="./assets/img/pool.png" type="image/png" />
@@ -245,7 +254,16 @@
       }
       .vault-footer {
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .github-link {
+        color: var(--color-txt);
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .github-link:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
@@ -418,6 +436,7 @@
 
       <!-- Footer for Connect Button -->
       <div class="vault-footer">
+        <a href="" class="github-link">GitHub</a>
         <div class="connect-widget">
           <button id="connect-btn" class="connect-btn">Connect</button>
           <div id="connect-wallet-list" class="connect-wallet-list">
