@@ -215,13 +215,13 @@ document.addEventListener("DOMContentLoaded", () => {
       elements.redeem.balance.innerText = formattedShares;
 
       // Update UI labels
-      elements.deposit.balanceLabel.innerText = `${assetSymbol} Balance:`;
+      elements.deposit.balanceLabel.innerText = `${assetSymbol}:`;
       elements.deposit.input.placeholder = `Enter ${assetSymbol} amount`;
       elements.deposit.executeBtn.innerText = `Deposit ${assetSymbol}`;
 
-      elements.redeem.balanceLabel.innerText = `${vaultSymbol} Balance:`;
+      elements.redeem.balanceLabel.innerText = `${vaultSymbol}:`;
       elements.redeem.input.placeholder = `Enter ${vaultSymbol} amount`;
-      elements.redeem.executeBtn.innerText = `Redeem ${vaultSymbol}`;
+      elements.redeem.executeBtn.innerText = `Withdraw ${vaultSymbol}`;
     } catch (error) {
       console.error("Failed to update balances:", error);
       elements.deposit.balance.innerText = "Error";
