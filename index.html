@@ -41,14 +41,20 @@
     <link rel="stylesheet" href="./assets/css/notifications.css" />
     <link rel="stylesheet" href="./assets/css/connect.css" />
     <style>
-      /* Demo layout (safe to remove) */
+      /* Base layout */
       :root {
-        --color-bg: #f5f5f5;
-        --color-txt: #10131f;
+        --color-bg: #e4dbef;
+        --color-txt: #1b1a1b;
+        --vault-color-bg: color-mix(in srgb, var(--color-bg) 95%, black 10%);
+        --vault-shadow: 0 4px 10px color-mix(in srgb, black 15%, transparent);
+        --btn-color-hvr: color-mix(in srgb, var(--color-bg) 85%, black 15%);
       }
       [data-theme="dark"] {
-        --color-bg: #10131f;
-        --color-txt: #f5f5f5;
+        --color-bg: #1b1a1b;
+        --color-txt: #c0a9f9;
+        --vault-color-bg: color-mix(in srgb, var(--color-bg) 92%, white 8%);
+        --vault-shadow: 0 4px 10px color-mix(in srgb, black 40%, transparent);
+        --btn-color-hvr: color-mix(in srgb, var(--color-bg) 85%, white 15%);
       }
       body {
         background: var(--color-bg);
@@ -57,17 +63,41 @@
         transition:
           background 0.3s,
           color 0.3s;
-        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
       }
-      .demo {
+
+      /* Vault styles */
+      .vault-interaction {
         max-width: 400px;
-        margin: 300px auto;
-        padding: 24px;
+        padding: 20px;
         display: grid;
-        gap: 16px;
-        color: var(--color-bg);
-        background-color: var(--color-txt);
-        border-radius: 12px;
+        gap: 18px;
+        /*background-color: var(--vault-color-bg);*/
+        /*border-radius: 15px;*/
+        /*box-shadow: var(--vault-shadow);*/
+        /*border: 1px solid color-mix(in srgb, var(--color-txt) 5%, transparent);*/
+      }
+      .vault-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      }
+      .network-logo {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+      }
+
+      .vault-interaction h2 {
+        margin: 0;
+        font-size: 1.4em;
+        text-align: center;
+        opacity: 0.9;
       }
       .row {
         display: flex;
@@ -76,111 +106,229 @@
         align-items: center;
       }
       .btn {
+        font-size: 1.1em;
         color: var(--color-txt);
-        border: 1px solid var(--color-txt);
-        background: var(--color-bg);
-        padding: 8px 12px;
-        border-radius: 8px;
+        background: var(--connect-color-btn);
+        border: none;
+        height: 44px;
+        padding: 7.5px 15px;
+        border-radius: 10px;
         cursor: pointer;
-        font: inherit;
-      }
-      .spacer {
+        transition: background-color 0.2s ease-in-out;
         flex: 1;
+      }
+      .btn:hover {
+        background-color: var(--btn-color-hvr);
+      }
+      #amount-input {
+        font-size: 1.1em;
+        color: var(--color-txt);
+        background: var(--color-bg);
+        border: 1px solid var(--connect-color-btn);
+        height: 44px;
+        padding: 7.5px 15px;
+        border-radius: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+      }
+      #amount-input:focus {
+        outline: none;
+        border-color: var(--btn-color-hvr);
+      }
+      .accordion-content {
+        display: grid;
+        gap: 15px;
+        background-color: var(--color-bg);
+        padding: 15px;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.4s ease-in-out;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        border: 1px solid var(--connect-color-btn);
+      }
+      .accordion-content.open {
+        max-height: 300px; /* Adjust as needed */
+        padding-top: 15px;
+        padding-bottom: 15px;
+        border-color: var(--connect-color-btn);
+      }
+      .balance-display {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1em;
+        opacity: 0.8;
+      }
+      .input-group {
+        display: flex;
+        align-items: center;
+      }
+      .accordion-input {
+        font-size: 1.1em;
+        color: var(--color-txt);
+        background: var(--color-bg);
+        border: 1px solid var(--connect-color-btn);
+        height: 44px;
+        padding: 7.5px 15px;
+        border-radius: 10px 0 0 10px;
+        width: 100%;
+        box-sizing: border-box;
+        text-align: left;
+        flex-grow: 1;
+        border-right: none;
+      }
+      .accordion-input:focus {
+        outline: none;
+      }
+      .btn-max {
+        height: 44px;
+        border: 1px solid var(--connect-color-btn);
+        border-left: 0;
+        background: var(--color-bg);
+        color: var(--color-txt);
+        padding: 0 15px;
+        border-radius: 0 10px 10px 0;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background-color 0.2s ease-in-out;
+      }
+      .btn-max:hover {
+        background-color: var(--btn-color-hvr);
+      }
+      .btn-execute {
+        width: 100%;
+        background-color: var(--btn-color-hvr);
+      }
+      .btn-execute:hover {
+        background-color: var(--connect-color-btn);
+      }
+      .vault-footer {
+        display: flex;
+        justify-content: flex-end;
       }
     </style>
   </head>
   <body>
-    <!-- Connect Widget -->
-    <div class="connect-wrapper">
-      <!-- Theme Button -->
-      <button id="theme-btn" aria-label="Toggle theme">
-        <svg
-          id="theme-light"
-          xmlns="http://www.w3.org/2000/svg"
-          width="26"
-          height="26"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.33"
-        >
-          <circle cx="8" cy="8" r="3.33" />
-          <path
-            d="M8 0.67v1.33M8 14v1.33M2.81 2.81l0.95 0.95M12.24 12.24l0.95 0.95M0.67 8h1.33M14 8h1.33M2.81 13.19l0.95-0.95M12.24 3.76l0.95-0.95"
-          />
-        </svg>
-        <svg
-          id="theme-dark"
-          xmlns="http://www.w3.org/2000/svg"
-          width="26"
-          height="26"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.33"
-        >
-          <path d="M14 8.53A6 6 0 1 1 7.47 2 4.67 4.67 0 0 0 14 8.53z" />
-        </svg>
-        <svg
-          id="theme-system"
-          xmlns="http://www.w3.org/2000/svg"
-          width="26"
-          height="26"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.33"
-        >
-          <rect
-            x="1.33"
-            y="2"
-            width="13.33"
-            height="9.33"
-            rx="1.33"
-            ry="1.33"
-          />
-          <line x1="5.33" y1="14" x2="10.67" y2="14" />
-          <line x1="8" y1="11.33" x2="8" y2="14" />
-        </svg>
-      </button>
-      <div class="connect-widget">
-        <button id="connect-btn" class="connect-btn">Connect</button>
-        <div id="connect-wallet-list" class="connect-wallet-list">
-          <div class="connect-chain-list" id="connect-chain-list"></div>
-          <div id="connect-get-wallet" class="connect-get-wallet">
-            <a href="https://ethereum.org/en/wallets/" target="_blank"
-              >Get a Wallet!</a
-            >
-          </div>
-          <div id="connect-wallets" class="connect-wallets"></div>
-        </div>
-      </div>
-    </div>
-
     <!-- Notifications Container -->
     <div id="notificationContainer"></div>
 
-    <div class="demo">
-      <div class="row">
-        <strong>dappkit:</strong>
-        <a
-          href="https://github.com/b4b0y4/dappkit"
-          target="_blank"
-          style="color: var(--primary-color)"
-          >GitHub</a
-        >
+    <div class="vault-interaction">
+      <div class="vault-header">
+        <img id="network-logo" src="" alt="Network" class="network-logo" />
+        <!-- Theme Button -->
+        <button id="theme-btn" aria-label="Toggle theme">
+          <svg
+            id="theme-light"
+            xmlns="http://www.w3.org/2000/svg"
+            width="26"
+            height="26"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.33"
+          >
+            <circle cx="8" cy="8" r="3.33" />
+            <path
+              d="M8 0.67v1.33M8 14v1.33M2.81 2.81l0.95 0.95M12.24 12.24l0.95 0.95M0.67 8h1.33M14 8h1.33M2.81 13.19l0.95-0.95M12.24 3.76l0.95-0.95"
+            />
+          </svg>
+          <svg
+            id="theme-dark"
+            xmlns="http://www.w3.org/2000/svg"
+            width="26"
+            height="26"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.33"
+          >
+            <path d="M14 8.53A6 6 0 1 1 7.47 2 4.67 4.67 0 0 0 14 8.53z" />
+          </svg>
+          <svg
+            id="theme-system"
+            xmlns="http://www.w3.org/2000/svg"
+            width="26"
+            height="26"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.33"
+          >
+            <rect
+              x="1.33"
+              y="2"
+              width="13.33"
+              height="9.33"
+              rx="1.33"
+              ry="1.33"
+            />
+            <line x1="5.33" y1="14" x2="10.67" y2="14" />
+            <line x1="8" y1="11.33" x2="8" y2="14" />
+          </svg>
+        </button>
       </div>
       <div class="row">
-        <strong>Try it:</strong>
-        <button class="btn" data-type="success">Success</button>
-        <button class="btn" data-type="info">Info</button>
-        <button class="btn" data-type="warning">Warning</button>
-        <button class="btn" data-type="danger">Danger</button>
-        <span class="spacer"></span>
-        <em
-          >Single-click the sun/moon icon to toggle theme, double-click toggle
-          system theme.</em
-        >
+        <button id="deposit-toggle-btn" class="btn">Deposit</button>
+        <button id="redeem-toggle-btn" class="btn">Withdraw</button>
+      </div>
+
+      <!-- Deposit Accordion Content (hidden by default) -->
+      <div id="deposit-accordion" class="accordion-content">
+        <div class="balance-display">
+          <span>WETH:</span>
+          <strong id="deposit-asset-balance">0</strong>
+        </div>
+        <div class="input-group">
+          <input
+            type="text"
+            id="deposit-amount-input"
+            placeholder="Enter WETH amount"
+            class="accordion-input"
+          />
+          <button id="deposit-max-btn" class="btn-max">Max</button>
+        </div>
+        <button id="deposit-execute-btn" class="btn btn-execute">
+          Deposit WETH
+        </button>
+      </div>
+
+      <!-- Redeem Accordion Content (hidden by default) -->
+      <div id="redeem-accordion" class="accordion-content">
+        <div class="balance-display">
+          <span>przWETH:</span>
+          <strong id="redeem-shares-balance">0</strong>
+        </div>
+        <div class="input-group">
+          <input
+            type="text"
+            id="redeem-amount-input"
+            placeholder="Enter przWETH amount"
+            class="accordion-input"
+          />
+          <button id="redeem-max-btn" class="btn-max">Max</button>
+        </div>
+        <button id="redeem-execute-btn" class="btn btn-execute">
+          Withdraw przWETH
+        </button>
+      </div>
+
+      <!-- Footer for Connect Button -->
+      <div class="vault-footer">
+        <div class="connect-widget">
+          <button id="connect-btn" class="connect-btn">Connect</button>
+          <div id="connect-wallet-list" class="connect-wallet-list">
+            <div class="connect-chain-list" id="connect-chain-list"></div>
+            <div id="connect-get-wallet" class="connect-get-wallet">
+              <a href="https://ethereum.org/en/wallets/" target="_blank"
+                >Get a Wallet!</a
+              >
+            </div>
+            <div id="connect-wallets" class="connect-wallets"></div>
+          </div>
+        </div>
       </div>
     </div>
 

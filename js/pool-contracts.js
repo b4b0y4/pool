@@ -1104,3 +1104,5 @@ const poolContracts = {
     address: "0x2998c1685E308661123F64B333767266035f5020",
   },
 };
+
+export { poolContracts };
