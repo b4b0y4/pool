@@ -100,7 +100,7 @@
   position: absolute;
   bottom: 0;
   left: 100%;
-  margin-left: 10px;
+  margin-left: 20px;
   width: 200px;
   background-color: var(--color-bg);
   box-shadow: var(--connect-shadow);
@@ -241,7 +241,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: px) {
   .connect-wallet-list {
     position: fixed;
     bottom: 0;
