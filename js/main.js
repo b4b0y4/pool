@@ -11,6 +11,16 @@ const tokenIconMap = {
   przWETH: "./assets/img/przweth.png",
 };
 
+const wethAddresses = {
+  10: "0x4200000000000000000000000000000000000006", // Optimism
+  8453: "0x4200000000000000000000000000000000000006", // Base
+};
+
+const wethAbi = [
+  "function deposit() payable",
+  "function withdraw(uint256 wad)",
+];
+
 document.addEventListener("DOMContentLoaded", () => {
   // #region Elements
   const elements = {
@@ -42,11 +52,27 @@ document.addEventListener("DOMContentLoaded", () => {
       maxBtn: document.querySelector("#redeem-max-btn"),
       executeBtn: document.querySelector("#redeem-execute-btn"),
     },
+    wrap: {
+      toggleBtn: document.querySelector("#wrap-toggle-btn"),
+      accordion: document.querySelector("#wrap-accordion"),
+      ethBalance: document.querySelector("#eth-balance"),
+      wethBalance: document.querySelector("#weth-balance"),
+      input: document.querySelector("#wrap-amount-input"),
+      wrapBtn: document.querySelector("#wrap-execute-btn"),
+      unwrapBtn: document.querySelector("#unwrap-execute-btn"),
+      maxEthBtn: document.querySelector("#wrap-max-eth-btn"),
+      maxWethBtn: document.querySelector("#wrap-max-weth-btn"),
+    },
     networkLogo: document.getElementById("network-logo"),
   };
+  const accordions = [
+    elements.deposit.accordion,
+    elements.redeem.accordion,
+    elements.wrap.accordion,
+  ];
   // #endregion
 
-  let rawBalances = { asset: "0", shares: "0" };
+  let rawBalances = { asset: "0", shares: "0", eth: "0" };
   let isNetworkSupported = true;
 
   // #region Wallet & Chain Events
@@ -89,17 +115,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // #endregion
 
   // #region Accordion Logic
-  const toggleAccordion = (accordion) => {
-    const otherAccordion =
-      accordion === elements.deposit.accordion
-        ? elements.redeem.accordion
-        : elements.deposit.accordion;
-    const isOpen = accordion.classList.toggle("open");
-
-    otherAccordion.classList.remove("open");
-    otherAccordion.style.maxHeight = null;
-
-    accordion.style.maxHeight = isOpen ? accordion.scrollHeight + "px" : null;
+  const toggleAccordion = (accordionToShow) => {
+    accordions.forEach((acc) => {
+      const isOpen = acc === accordionToShow && !acc.classList.contains("open");
+      acc.classList.toggle("open", isOpen);
+      acc.style.maxHeight = isOpen ? acc.scrollHeight + "px" : null;
+    });
   };
 
   elements.deposit.toggleBtn.addEventListener("click", () =>
@@ -107,6 +128,9 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   elements.redeem.toggleBtn.addEventListener("click", () =>
     toggleAccordion(elements.redeem.accordion),
+  );
+  elements.wrap.toggleBtn.addEventListener("click", () =>
+    toggleAccordion(elements.wrap.accordion),
   );
   // #endregion
 
@@ -129,9 +153,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!wallet.isConnected()) {
       elements.deposit.balance.innerText = "0";
       elements.redeem.balance.innerText = "0";
+      elements.wrap.ethBalance.innerText = "0";
+      elements.wrap.wethBalance.innerText = "0";
       elements.networkLogo.style.display = "none";
       elements.deposit.toggleBtn.disabled = true;
       elements.redeem.toggleBtn.disabled = true;
+      elements.wrap.toggleBtn.disabled = true;
       elements.deposit.icon.style.display = "none";
       elements.redeem.icon.style.display = "none";
       return;
@@ -156,6 +183,8 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.networkLogo.style.display = "none";
       }
 
+      elements.wrap.toggleBtn.disabled = !wethAddresses[Number(chainId)];
+
       if (!currentVault) {
         if (isNetworkSupported) {
           const supportedChainIds = Object.keys(poolContracts);
@@ -168,97 +197,111 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .filter(Boolean);
           const networkListString = supportedNetworkNames.join(", ");
-          const message = `Unsupported network. Please switch to: ${networkListString}.`;
+          const message = `Unsupported network for vault. Please switch to: ${networkListString}.`;
           NotificationSystem.show(message, "warning");
         }
         isNetworkSupported = false;
-        elements.deposit.balance.innerText = "Unsupported Network";
+        elements.deposit.balance.innerText = "Unsupported Vault";
         elements.redeem.balance.innerText = "";
         elements.deposit.balanceLabel.innerText = "Status:";
         elements.redeem.balanceLabel.innerText = "";
         elements.deposit.toggleBtn.disabled = true;
         elements.redeem.toggleBtn.disabled = true;
-        elements.deposit.accordion.classList.remove("open");
-        elements.redeem.accordion.classList.remove("open");
-        elements.deposit.accordion.style.maxHeight = null;
-        elements.redeem.accordion.style.maxHeight = null;
+        accordions.forEach((acc) => {
+          if (acc !== elements.wrap.accordion) {
+            acc.classList.remove("open");
+            acc.style.maxHeight = null;
+          }
+        });
         elements.deposit.icon.style.display = "none";
         elements.redeem.icon.style.display = "none";
-        return;
+      } else {
+        isNetworkSupported = true;
+        elements.deposit.toggleBtn.disabled = false;
+        elements.redeem.toggleBtn.disabled = false;
       }
-
-      isNetworkSupported = true;
-      elements.deposit.toggleBtn.disabled = false;
-      elements.redeem.toggleBtn.disabled = false;
 
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
+      const ethBalance = await provider.getBalance(userAddress);
+      const formattedEth = ethers.formatUnits(ethBalance, 18);
+      rawBalances.eth = formattedEth;
+      elements.wrap.ethBalance.innerText = formatBalance(formattedEth, 9);
 
-      const vaultContract = new ethers.Contract(
-        currentVault.address,
-        currentVault.abi,
-        signer,
-      );
+      if (currentVault) {
+        const vaultContract = new ethers.Contract(
+          currentVault.address,
+          currentVault.abi,
+          signer,
+        );
 
-      const assetAddress = await vaultContract.asset();
-      const assetAbi = [
-        "function balanceOf(address account) view returns (uint256)",
-        "function decimals() view returns (uint8)",
-        "function symbol() view returns (string)",
-      ];
-      const assetContract = new ethers.Contract(assetAddress, assetAbi, signer);
+        const assetAddress = await vaultContract.asset();
+        const assetAbi = [
+          "function balanceOf(address account) view returns (uint256)",
+          "function decimals() view returns (uint8)",
+          "function symbol() view returns (string)",
+        ];
+        const assetContract = new ethers.Contract(
+          assetAddress,
+          assetAbi,
+          signer,
+        );
 
-      const [
-        rawAssetBalance,
-        assetDecimals,
-        rawSharesBalance,
-        sharesDecimals,
-        assetSymbol,
-        vaultSymbol,
-      ] = await Promise.all([
-        assetContract.balanceOf(userAddress),
-        assetContract.decimals(),
-        vaultContract.balanceOf(userAddress),
-        vaultContract.decimals(),
-        assetContract.symbol(),
-        vaultContract.symbol(),
-      ]);
+        const [
+          rawAssetBalance,
+          assetDecimals,
+          rawSharesBalance,
+          sharesDecimals,
+          assetSymbol,
+          vaultSymbol,
+        ] = await Promise.all([
+          assetContract.balanceOf(userAddress),
+          assetContract.decimals(),
+          vaultContract.balanceOf(userAddress),
+          vaultContract.decimals(),
+          assetContract.symbol(),
+          vaultContract.symbol(),
+        ]);
 
-      const formattedAsset = ethers.formatUnits(rawAssetBalance, assetDecimals);
-      const formattedShares = ethers.formatUnits(
-        rawSharesBalance,
-        sharesDecimals,
-      );
+        const formattedAsset = ethers.formatUnits(
+          rawAssetBalance,
+          assetDecimals,
+        );
+        const formattedShares = ethers.formatUnits(
+          rawSharesBalance,
+          sharesDecimals,
+        );
 
-      rawBalances = { asset: formattedAsset, shares: formattedShares };
+        rawBalances.asset = formattedAsset;
+        rawBalances.shares = formattedShares;
 
-      elements.deposit.balance.innerText = formatBalance(formattedAsset, 9);
-      elements.redeem.balance.innerText = formatBalance(formattedShares, 9);
+        elements.deposit.balance.innerText = formatBalance(formattedAsset, 9);
+        elements.redeem.balance.innerText = formatBalance(formattedShares, 9);
+        elements.wrap.wethBalance.innerText = formatBalance(formattedAsset, 9);
 
-      // Update UI labels
-      elements.deposit.balanceLabel.innerText = `${assetSymbol}:`;
-      elements.deposit.input.placeholder = `Enter ${assetSymbol} amount`;
-      elements.deposit.executeBtn.innerText = `Deposit ${assetSymbol}`;
+        elements.deposit.balanceLabel.innerText = `${assetSymbol}:`;
+        elements.deposit.input.placeholder = `Enter ${assetSymbol} amount`;
+        elements.deposit.executeBtn.innerText = `Deposit ${assetSymbol}`;
 
-      elements.redeem.balanceLabel.innerText = `${vaultSymbol}:`;
-      elements.redeem.input.placeholder = `Enter ${vaultSymbol} amount`;
-      elements.redeem.executeBtn.innerText = `Redeem ${vaultSymbol}`;
+        elements.redeem.balanceLabel.innerText = `${vaultSymbol}:`;
+        elements.redeem.input.placeholder = `Enter ${vaultSymbol} amount`;
+        elements.redeem.executeBtn.innerText = `Redeem ${vaultSymbol}`;
 
-      // Update icons
-      const assetIconUrl = tokenIconMap[assetSymbol];
-      if (assetIconUrl) {
-        elements.deposit.icon.src = assetIconUrl;
-        elements.deposit.icon.style.display = "block";
-      } else {
-        elements.deposit.icon.style.display = "none";
-      }
+        const assetIconUrl = tokenIconMap[assetSymbol];
+        if (assetIconUrl) {
+          elements.deposit.icon.src = assetIconUrl;
+          elements.deposit.icon.style.display = "block";
+        } else {
+          elements.deposit.icon.style.display = "none";
+        }
 
-      const vaultIconUrl = tokenIconMap[vaultSymbol];
-      if (vaultIconUrl) {
-        elements.redeem.icon.src = vaultIconUrl;
-        elements.redeem.icon.style.display = "block";
-      } else {
-        elements.redeem.icon.style.display = "none";
+        const vaultIconUrl = tokenIconMap[vaultSymbol];
+        if (vaultIconUrl) {
+          elements.redeem.icon.src = vaultIconUrl;
+          elements.redeem.icon.style.display = "block";
+        } else {
+          elements.redeem.icon.style.display = "none";
+        }
       }
     } catch (error) {
       console.error("Failed to update balances:", error);
@@ -274,6 +317,16 @@ document.addEventListener("DOMContentLoaded", () => {
   elements.redeem.maxBtn.addEventListener("click", () => {
     elements.redeem.input.value = rawBalances.shares;
   });
+
+  elements.wrap.maxEthBtn.addEventListener("click", () => {
+    const gasReserve = 0.01;
+    const maxEth = parseFloat(rawBalances.eth) - gasReserve;
+    elements.wrap.input.value = maxEth > 0 ? maxEth.toString() : "0";
+  });
+
+  elements.wrap.maxWethBtn.addEventListener("click", () => {
+    elements.wrap.input.value = rawBalances.asset;
+  });
   // #endregion
 
   // #region Transaction Logic
@@ -282,69 +335,91 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!provider) throw new Error("Could not get wallet provider.");
 
     const network = await provider.getNetwork();
-    const chainId = network.chainId;
-    const currentVault = getCurrentVaultContract(chainId);
-
-    if (!currentVault) throw new Error("Unsupported network for this action.");
-
+    const chainId = Number(network.chainId);
     const signer = await provider.getSigner();
-    const vaultContract = new ethers.Contract(
-      currentVault.address,
-      currentVault.abi,
-      signer,
-    );
-    const receiver = await signer.getAddress();
 
-    if (action === "deposit") {
-      const amount = elements.deposit.input.value;
+    if (action === "wrap" || action === "unwrap") {
+      const wethAddress = wethAddresses[chainId];
+      if (!wethAddress) throw new Error("WETH not available on this network.");
+      const wethContract = new ethers.Contract(wethAddress, wethAbi, signer);
+      const amount = elements.wrap.input.value;
       if (!amount) throw new Error("Please enter an amount.");
+      const amountInWei = ethers.parseEther(amount);
 
-      const assetAddress = await vaultContract.asset();
-      const assetContract = new ethers.Contract(
-        assetAddress,
-        [
-          "function approve(address, uint256) returns (bool)",
-          "function allowance(address, address) view returns (uint256)",
-          "function decimals() view returns (uint8)",
-        ],
+      if (action === "wrap") {
+        NotificationSystem.show("Wrapping ETH...", "info");
+        const tx = await wethContract.deposit({ value: amountInWei });
+        await provider.waitForTransaction(tx.hash);
+        NotificationSystem.show("Wrap successful!", "success");
+      } else {
+        NotificationSystem.show("Unwrapping WETH...", "info");
+        const tx = await wethContract.withdraw(amountInWei);
+        await provider.waitForTransaction(tx.hash);
+        NotificationSystem.show("Unwrap successful!", "success");
+      }
+      elements.wrap.input.value = "";
+    } else {
+      const currentVault = getCurrentVaultContract(chainId);
+      if (!currentVault)
+        throw new Error("Unsupported network for this action.");
+      const vaultContract = new ethers.Contract(
+        currentVault.address,
+        currentVault.abi,
         signer,
       );
-      const assetDecimals = await assetContract.decimals();
-      const amountInWei = ethers.parseUnits(amount, assetDecimals);
+      const receiver = await signer.getAddress();
 
-      const allowance = await assetContract.allowance(
-        receiver,
-        currentVault.address,
-      );
-      if (allowance < amountInWei) {
-        NotificationSystem.show("Approving token transfer...", "info");
-        const approveTx = await assetContract.approve(
-          currentVault.address,
-          amountInWei,
+      if (action === "deposit") {
+        const amount = elements.deposit.input.value;
+        if (!amount) throw new Error("Please enter an amount.");
+
+        const assetAddress = await vaultContract.asset();
+        const assetContract = new ethers.Contract(
+          assetAddress,
+          [
+            "function approve(address, uint256) returns (bool)",
+            "function allowance(address, address) view returns (uint256)",
+            "function decimals() view returns (uint8)",
+          ],
+          signer,
         );
-        await provider.waitForTransaction(approveTx.hash);
-        NotificationSystem.show("Approval successful!", "success");
+        const assetDecimals = await assetContract.decimals();
+        const amountInWei = ethers.parseUnits(amount, assetDecimals);
+
+        const allowance = await assetContract.allowance(
+          receiver,
+          currentVault.address,
+        );
+        if (allowance < amountInWei) {
+          NotificationSystem.show("Approving token transfer...", "info");
+          const approveTx = await assetContract.approve(
+            currentVault.address,
+            amountInWei,
+          );
+          await provider.waitForTransaction(approveTx.hash);
+          NotificationSystem.show("Approval successful!", "success");
+        }
+
+        NotificationSystem.show("Depositing...", "info");
+        const tx = await vaultContract.deposit(amountInWei, receiver);
+        await provider.waitForTransaction(tx.hash);
+        NotificationSystem.show("Deposit successful!", "success");
+        elements.deposit.input.value = "";
+      } else if (action === "redeem") {
+        const amount = elements.redeem.input.value;
+        if (!amount)
+          throw new Error("Please enter an amount of shares to redeem.");
+
+        const sharesDecimals = await vaultContract.decimals();
+        const sharesAmount = ethers.parseUnits(amount, sharesDecimals);
+        const owner = await signer.getAddress();
+
+        NotificationSystem.show("Redeeming shares...", "info");
+        const tx = await vaultContract.redeem(sharesAmount, receiver, owner);
+        await provider.waitForTransaction(tx.hash);
+        NotificationSystem.show("Redeem successful!", "success");
+        elements.redeem.input.value = "";
       }
-
-      NotificationSystem.show("Depositing...", "info");
-      const tx = await vaultContract.deposit(amountInWei, receiver);
-      await provider.waitForTransaction(tx.hash);
-      NotificationSystem.show("Deposit successful!", "success");
-      elements.deposit.input.value = "";
-    } else if (action === "redeem") {
-      const amount = elements.redeem.input.value;
-      if (!amount)
-        throw new Error("Please enter an amount of shares to redeem.");
-
-      const sharesDecimals = await vaultContract.decimals();
-      const sharesAmount = ethers.parseUnits(amount, sharesDecimals);
-      const owner = await signer.getAddress();
-
-      NotificationSystem.show("Redeeming shares...", "info");
-      const tx = await vaultContract.redeem(sharesAmount, receiver, owner);
-      await provider.waitForTransaction(tx.hash);
-      NotificationSystem.show("Redeem successful!", "success");
-      elements.redeem.input.value = "";
     }
 
     updateBalances();
@@ -358,6 +433,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   elements.redeem.executeBtn.addEventListener("click", () => {
     executeTransaction("redeem").catch((err) =>
+      NotificationSystem.show(err.reason || err.message, "danger"),
+    );
+  });
+
+  elements.wrap.wrapBtn.addEventListener("click", () => {
+    executeTransaction("wrap").catch((err) =>
+      NotificationSystem.show(err.reason || err.message, "danger"),
+    );
+  });
+
+  elements.wrap.unwrapBtn.addEventListener("click", () => {
+    executeTransaction("unwrap").catch((err) =>
       NotificationSystem.show(err.reason || err.message, "danger"),
     );
   });

@@ -156,7 +156,6 @@
         border: 1px solid var(--connect-color-btn);
       }
       .accordion-content.open {
-        max-height: 300px; /* Adjust as needed */
         padding-top: 15px;
         padding-bottom: 15px;
         border-color: var(--connect-color-btn);
@@ -176,6 +175,25 @@
       .token-icon {
         width: 24px;
         height: 24px;
+      }
+      .balance-action-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-max-small {
+        padding: 2px 8px;
+        font-size: 0.8em;
+        border-radius: 5px;
+        border: 1px solid var(--color-primary);
+        background: transparent;
+        color: var(--color-primary);
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+      }
+      .btn-max-small:hover {
+        background: var(--color-primary);
+        color: var(--color-btn-txt);
       }
       .input-group {
         display: flex;
@@ -289,8 +307,11 @@
         </div>
       </div>
       <div class="row">
+        <button id="wrap-toggle-btn" class="btn">Wrap/Unwrap ETH</button>
+      </div>
+      <div class="row">
         <button id="deposit-toggle-btn" class="btn">Deposit</button>
-        <button id="redeem-toggle-btn" class="btn">Withdraw</button>
+        <button id="redeem-toggle-btn" class="btn">Redeem</button>
       </div>
 
       <!-- Deposit Accordion Content (hidden by default) -->
@@ -345,6 +366,48 @@
         <button id="redeem-execute-btn" class="btn btn-execute">
           Withdraw przWETH
         </button>
+      </div>
+
+      <!-- Wrap/Unwrap Accordion Content (hidden by default) -->
+      <div id="wrap-accordion" class="accordion-content">
+        <div class="balance-display">
+          <div class="balance-label-group">
+            <img src="./assets/img/eth.png" class="token-icon" alt="ETH icon" />
+            <span>ETH:</span>
+          </div>
+          <div class="balance-action-group">
+            <strong id="eth-balance">0</strong>
+            <button id="wrap-max-eth-btn" class="btn-max-small">Max</button>
+          </div>
+        </div>
+        <div class="balance-display">
+          <div class="balance-label-group">
+            <img
+              src="./assets/img/weth.png"
+              class="token-icon"
+              alt="WETH icon"
+            />
+            <span>WETH:</span>
+          </div>
+          <div class="balance-action-group">
+            <strong id="weth-balance">0</strong>
+            <button id="wrap-max-weth-btn" class="btn-max-small">Max</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <input
+            type="text"
+            id="wrap-amount-input"
+            placeholder="Enter amount"
+            class="accordion-input"
+          />
+        </div>
+        <div class="row">
+          <button id="wrap-execute-btn" class="btn btn-execute">Wrap</button>
+          <button id="unwrap-execute-btn" class="btn btn-execute">
+            Unwrap
+          </button>
+        </div>
       </div>
 
       <!-- Footer for Connect Button -->
