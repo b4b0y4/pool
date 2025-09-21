@@ -115,6 +115,16 @@ document.addEventListener("DOMContentLoaded", () => {
     return poolContracts[Number(chainId)];
   }
 
+  function formatBalance(balanceString, maxDecimals = 9) {
+    if (!balanceString.includes(".")) {
+      return balanceString;
+    }
+    const parts = balanceString.split(".");
+    const integerPart = parts[0];
+    const decimalPart = parts[1].substring(0, maxDecimals);
+    return `${integerPart}.${decimalPart}`;
+  }
+
   async function updateBalances() {
     if (!wallet.isConnected()) {
       elements.deposit.balance.innerText = "0";
@@ -222,8 +232,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       rawBalances = { asset: formattedAsset, shares: formattedShares };
 
-      elements.deposit.balance.innerText = formattedAsset;
-      elements.redeem.balance.innerText = formattedShares;
+      elements.deposit.balance.innerText = formatBalance(formattedAsset, 9);
+      elements.redeem.balance.innerText = formatBalance(formattedShares, 9);
 
       // Update UI labels
       elements.deposit.balanceLabel.innerText = `${assetSymbol}:`;
