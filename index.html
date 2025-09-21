@@ -64,7 +64,8 @@
 
       /* Vault styles */
       .vault-interaction {
-        max-width: 400px;
+        max-width: 500px;
+        width: 800px;
         padding: 20px;
         display: grid;
         gap: 18px;
@@ -213,6 +214,10 @@
         flex-grow: 1;
         border-right: none;
       }
+      .accordion-input.wrap {
+        border-radius: 10px;
+        border-right: 1px solid var(--connect-color-btn);
+      }
       .accordion-input:focus {
         outline: none;
       }
@@ -309,6 +314,49 @@
       <div class="row">
         <button id="wrap-toggle-btn" class="btn">Wrap/Unwrap ETH</button>
       </div>
+
+      <!-- Wrap/Unwrap Accordion Content (hidden by default) -->
+      <div id="wrap-accordion" class="accordion-content">
+        <div class="balance-display">
+          <div class="balance-label-group">
+            <img src="./assets/img/eth.png" class="token-icon" alt="ETH icon" />
+            <span>ETH:</span>
+          </div>
+          <div class="balance-action-group">
+            <strong id="eth-balance">0</strong>
+            <button id="wrap-max-eth-btn" class="btn-max-small">Max</button>
+          </div>
+        </div>
+        <div class="balance-display">
+          <div class="balance-label-group">
+            <img
+              src="./assets/img/weth.png"
+              class="token-icon"
+              alt="WETH icon"
+            />
+            <span>WETH:</span>
+          </div>
+          <div class="balance-action-group">
+            <strong id="weth-balance">0</strong>
+            <button id="wrap-max-weth-btn" class="btn-max-small">Max</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <input
+            type="text"
+            id="wrap-amount-input"
+            placeholder="Enter amount"
+            class="accordion-input wrap"
+          />
+        </div>
+        <div class="row">
+          <button id="wrap-execute-btn" class="btn btn-execute">Wrap</button>
+          <button id="unwrap-execute-btn" class="btn btn-execute">
+            Unwrap
+          </button>
+        </div>
+      </div>
+
       <div class="row">
         <button id="deposit-toggle-btn" class="btn">Deposit</button>
         <button id="redeem-toggle-btn" class="btn">Redeem</button>
@@ -366,48 +414,6 @@
         <button id="redeem-execute-btn" class="btn btn-execute">
           Withdraw przWETH
         </button>
-      </div>
-
-      <!-- Wrap/Unwrap Accordion Content (hidden by default) -->
-      <div id="wrap-accordion" class="accordion-content">
-        <div class="balance-display">
-          <div class="balance-label-group">
-            <img src="./assets/img/eth.png" class="token-icon" alt="ETH icon" />
-            <span>ETH:</span>
-          </div>
-          <div class="balance-action-group">
-            <strong id="eth-balance">0</strong>
-            <button id="wrap-max-eth-btn" class="btn-max-small">Max</button>
-          </div>
-        </div>
-        <div class="balance-display">
-          <div class="balance-label-group">
-            <img
-              src="./assets/img/weth.png"
-              class="token-icon"
-              alt="WETH icon"
-            />
-            <span>WETH:</span>
-          </div>
-          <div class="balance-action-group">
-            <strong id="weth-balance">0</strong>
-            <button id="wrap-max-weth-btn" class="btn-max-small">Max</button>
-          </div>
-        </div>
-        <div class="input-group">
-          <input
-            type="text"
-            id="wrap-amount-input"
-            placeholder="Enter amount"
-            class="accordion-input"
-          />
-        </div>
-        <div class="row">
-          <button id="wrap-execute-btn" class="btn btn-execute">Wrap</button>
-          <button id="unwrap-execute-btn" class="btn btn-execute">
-            Unwrap
-          </button>
-        </div>
       </div>
 
       <!-- Footer for Connect Button -->
