@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
     deposit: {
       toggleBtn: document.querySelector("#deposit-toggle-btn"),
       accordion: document.querySelector("#deposit-accordion"),
+      balanceLabel: document.querySelector(
+        "#deposit-accordion .balance-display span",
+      ),
       balance: document.querySelector("#deposit-asset-balance"),
       input: document.querySelector("#deposit-amount-input"),
       maxBtn: document.querySelector("#deposit-max-btn"),
@@ -24,6 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
     redeem: {
       toggleBtn: document.querySelector("#redeem-toggle-btn"),
       accordion: document.querySelector("#redeem-accordion"),
+      balanceLabel: document.querySelector(
+        "#redeem-accordion .balance-display span",
+      ),
       balance: document.querySelector("#redeem-shares-balance"),
       input: document.querySelector("#redeem-amount-input"),
       maxBtn: document.querySelector("#redeem-max-btn"),
@@ -97,11 +103,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // #endregion
 
   // #region Balance & UI Updates
+  function getCurrentVaultContract(chainId) {
+    return poolContracts[Number(chainId)];
+  }
+
   async function updateBalances() {
     if (!wallet.isConnected()) {
       elements.deposit.balance.innerText = "0";
       elements.redeem.balance.innerText = "0";
       elements.networkLogo.style.display = "none";
+      elements.deposit.toggleBtn.disabled = true;
+      elements.redeem.toggleBtn.disabled = true;
       return;
     }
 
@@ -111,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const network = await provider.getNetwork();
       const chainId = network.chainId;
+      const currentVault = getCurrentVaultContract(chainId);
 
       const currentNetworkConfig = Object.values(networkConfigs).find(
         (config) => config.chainId === Number(chainId),
@@ -123,35 +136,55 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.networkLogo.style.display = "none";
       }
 
-      if (chainId !== 10n) {
-        elements.deposit.balance.innerText = "Wrong Network";
-        elements.redeem.balance.innerText = "Wrong Network";
+      if (!currentVault) {
+        elements.deposit.balance.innerText = "Unsupported Network";
+        elements.redeem.balance.innerText = "";
+        elements.deposit.balanceLabel.innerText = "Status:";
+        elements.redeem.balanceLabel.innerText = "";
+        elements.deposit.toggleBtn.disabled = true;
+        elements.redeem.toggleBtn.disabled = true;
+        elements.deposit.accordion.classList.remove("open");
+        elements.redeem.accordion.classList.remove("open");
+        elements.deposit.accordion.style.maxHeight = null;
+        elements.redeem.accordion.style.maxHeight = null;
         return;
       }
+
+      elements.deposit.toggleBtn.disabled = false;
+      elements.redeem.toggleBtn.disabled = false;
 
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      const opVaultContract = new ethers.Contract(
-        poolContracts.OPVAULT.address,
-        poolContracts.OPVAULT.abi,
+      const vaultContract = new ethers.Contract(
+        currentVault.address,
+        currentVault.abi,
         signer,
       );
 
-      const assetAddress = await opVaultContract.asset();
+      const assetAddress = await vaultContract.asset();
       const assetAbi = [
         "function balanceOf(address account) view returns (uint256)",
         "function decimals() view returns (uint8)",
+        "function symbol() view returns (string)",
       ];
       const assetContract = new ethers.Contract(assetAddress, assetAbi, signer);
 
-      const [rawAssetBalance, assetDecimals, rawSharesBalance, sharesDecimals] =
-        await Promise.all([
-          assetContract.balanceOf(userAddress),
-          assetContract.decimals(),
-          opVaultContract.balanceOf(userAddress),
-          opVaultContract.decimals(),
-        ]);
+      const [
+        rawAssetBalance,
+        assetDecimals,
+        rawSharesBalance,
+        sharesDecimals,
+        assetSymbol,
+        vaultSymbol,
+      ] = await Promise.all([
+        assetContract.balanceOf(userAddress),
+        assetContract.decimals(),
+        vaultContract.balanceOf(userAddress),
+        vaultContract.decimals(),
+        assetContract.symbol(),
+        vaultContract.symbol(),
+      ]);
 
       const formattedAsset = ethers.formatUnits(rawAssetBalance, assetDecimals);
       const formattedShares = ethers.formatUnits(
@@ -163,6 +196,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       elements.deposit.balance.innerText = formattedAsset;
       elements.redeem.balance.innerText = formattedShares;
+
+      // Update UI labels
+      elements.deposit.balanceLabel.innerText = `${assetSymbol} Balance:`;
+      elements.deposit.input.placeholder = `Enter ${assetSymbol} amount`;
+      elements.deposit.executeBtn.innerText = `Deposit ${assetSymbol}`;
+
+      elements.redeem.balanceLabel.innerText = `${vaultSymbol} Balance:`;
+      elements.redeem.input.placeholder = `Enter ${vaultSymbol} amount`;
+      elements.redeem.executeBtn.innerText = `Redeem ${vaultSymbol}`;
     } catch (error) {
       console.error("Failed to update balances:", error);
       elements.deposit.balance.innerText = "Error";
@@ -180,49 +222,49 @@ document.addEventListener("DOMContentLoaded", () => {
   // #endregion
 
   // #region Transaction Logic
-  elements.deposit.executeBtn.addEventListener("click", async () => {
-    const amount = elements.deposit.input.value;
-    if (!amount) {
-      NotificationSystem.show("Please enter an amount.", "danger");
-      return;
-    }
+  async function executeTransaction(action) {
+    const provider = wallet.getEthersProvider();
+    if (!provider) throw new Error("Could not get wallet provider.");
 
-    try {
-      const provider = wallet.getEthersProvider();
-      if (!provider) throw new Error("Could not get wallet provider.");
+    const network = await provider.getNetwork();
+    const chainId = network.chainId;
+    const currentVault = getCurrentVaultContract(chainId);
 
-      const network = await provider.getNetwork();
-      if (network.chainId !== 10n)
-        throw new Error("Please switch to the Optimism network.");
+    if (!currentVault) throw new Error("Unsupported network for this action.");
 
-      const signer = await provider.getSigner();
-      const opVaultContract = new ethers.Contract(
-        poolContracts.OPVAULT.address,
-        poolContracts.OPVAULT.abi,
+    const signer = await provider.getSigner();
+    const vaultContract = new ethers.Contract(
+      currentVault.address,
+      currentVault.abi,
+      signer,
+    );
+    const receiver = await signer.getAddress();
+
+    if (action === "deposit") {
+      const amount = elements.deposit.input.value;
+      if (!amount) throw new Error("Please enter an amount.");
+
+      const assetAddress = await vaultContract.asset();
+      const assetContract = new ethers.Contract(
+        assetAddress,
+        [
+          "function approve(address, uint256) returns (bool)",
+          "function allowance(address, address) view returns (uint256)",
+          "function decimals() view returns (uint8)",
+        ],
         signer,
       );
-      const receiver = await signer.getAddress();
-
-      const assetAddress = await opVaultContract.asset();
-      const assetAbi = [
-        "function approve(address spender, uint256 amount) public returns (bool)",
-        "function allowance(address owner, address spender) public view returns (uint256)",
-        "function decimals() view returns (uint8)",
-      ];
-      const assetContract = new ethers.Contract(assetAddress, assetAbi, signer);
-
       const assetDecimals = await assetContract.decimals();
       const amountInWei = ethers.parseUnits(amount, assetDecimals);
 
       const allowance = await assetContract.allowance(
         receiver,
-        poolContracts.OPVAULT.address,
+        currentVault.address,
       );
-
       if (allowance < amountInWei) {
         NotificationSystem.show("Approving token transfer...", "info");
         const approveTx = await assetContract.approve(
-          poolContracts.OPVAULT.address,
+          currentVault.address,
           amountInWei,
         );
         await provider.waitForTransaction(approveTx.hash);
@@ -230,66 +272,39 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       NotificationSystem.show("Depositing...", "info");
-      const tx = await opVaultContract.deposit(amountInWei, receiver);
+      const tx = await vaultContract.deposit(amountInWei, receiver);
       await provider.waitForTransaction(tx.hash);
-
       NotificationSystem.show("Deposit successful!", "success");
       elements.deposit.input.value = "";
-      updateBalances();
-    } catch (error) {
-      console.error(error);
-      NotificationSystem.show(
-        error.reason || error.message || "Deposit failed.",
-        "danger",
-      );
-    }
-  });
+    } else if (action === "redeem") {
+      const amount = elements.redeem.input.value;
+      if (!amount)
+        throw new Error("Please enter an amount of shares to redeem.");
 
-  elements.redeem.executeBtn.addEventListener("click", async () => {
-    const amount = elements.redeem.input.value;
-    if (!amount) {
-      NotificationSystem.show(
-        "Please enter an amount of shares to redeem.",
-        "danger",
-      );
-      return;
-    }
-
-    try {
-      const provider = wallet.getEthersProvider();
-      if (!provider) throw new Error("Could not get wallet provider.");
-
-      const network = await provider.getNetwork();
-      if (network.chainId !== 10n)
-        throw new Error("Please switch to the Optimism network.");
-
-      const signer = await provider.getSigner();
-      const opVaultContract = new ethers.Contract(
-        poolContracts.OPVAULT.address,
-        poolContracts.OPVAULT.abi,
-        signer,
-      );
-
-      const sharesDecimals = await opVaultContract.decimals();
+      const sharesDecimals = await vaultContract.decimals();
       const sharesAmount = ethers.parseUnits(amount, sharesDecimals);
-
-      const receiver = await signer.getAddress();
       const owner = await signer.getAddress();
 
       NotificationSystem.show("Redeeming shares...", "info");
-      const tx = await opVaultContract.redeem(sharesAmount, receiver, owner);
+      const tx = await vaultContract.redeem(sharesAmount, receiver, owner);
       await provider.waitForTransaction(tx.hash);
-
       NotificationSystem.show("Redeem successful!", "success");
       elements.redeem.input.value = "";
-      updateBalances();
-    } catch (error) {
-      console.error(error);
-      NotificationSystem.show(
-        error.reason || error.message || "Redeem failed.",
-        "danger",
-      );
     }
+
+    updateBalances();
+  }
+
+  elements.deposit.executeBtn.addEventListener("click", () => {
+    executeTransaction("deposit").catch((err) =>
+      NotificationSystem.show(err.reason || err.message, "danger"),
+    );
+  });
+
+  elements.redeem.executeBtn.addEventListener("click", () => {
+    executeTransaction("redeem").catch((err) =>
+      NotificationSystem.show(err.reason || err.message, "danger"),
+    );
   });
   // #endregion
 

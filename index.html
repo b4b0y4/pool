@@ -77,10 +77,6 @@
         padding: 20px;
         display: grid;
         gap: 18px;
-        /*background-color: var(--vault-color-bg);*/
-        /*border-radius: 15px;*/
-        /*box-shadow: var(--vault-shadow);*/
-        /*border: 1px solid color-mix(in srgb, var(--color-txt) 5%, transparent);*/
       }
       .vault-header {
         display: flex;
@@ -129,7 +125,16 @@
       }
       .btn:hover {
         background-color: var(--btn-color-hvr);
+        color: var(--color-btn-txt);
       }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: translateY(0);
+        background-color: transparent !important;
+      }
+
+      /* Accordion Styles */
       #amount-input {
         font-size: 1.1em;
         color: var(--color-txt);

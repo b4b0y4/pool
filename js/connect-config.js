@@ -29,7 +29,7 @@ export const networkConfigs = {
     chainId: 8453,
     chainIdHex: "0x2105",
     icon: "./assets/img/base.png",
-    showInUI: false,
+    showInUI: true,
   },
   zksync: {
     name: "ZKsync",
