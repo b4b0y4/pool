@@ -319,7 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   elements.wrap.maxEthBtn.addEventListener("click", () => {
-    const gasReserve = 0.01;
+    const gasReserve = 0.001;
     const maxEth = parseFloat(rawBalances.eth) - gasReserve;
     elements.wrap.input.value = maxEth > 0 ? maxEth.toString() : "0";
   });
