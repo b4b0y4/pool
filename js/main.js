@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // #endregion
 
   let rawBalances = { asset: "0", shares: "0" };
+  let isNetworkSupported = true;
 
   // #region Wallet & Chain Events
   wallet.setElements(elements);
@@ -137,6 +138,21 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (!currentVault) {
+        if (isNetworkSupported) {
+          const supportedChainIds = Object.keys(poolContracts);
+          const supportedNetworkNames = supportedChainIds
+            .map((id) => {
+              const config = Object.values(networkConfigs).find(
+                (nc) => nc.chainId == id,
+              );
+              return config ? config.name : null;
+            })
+            .filter(Boolean);
+          const networkListString = supportedNetworkNames.join(", ");
+          const message = `Unsupported network. Please switch to: ${networkListString}.`;
+          NotificationSystem.show(message, "warning");
+        }
+        isNetworkSupported = false;
         elements.deposit.balance.innerText = "Unsupported Network";
         elements.redeem.balance.innerText = "";
         elements.deposit.balanceLabel.innerText = "Status:";
@@ -150,6 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      isNetworkSupported = true;
       elements.deposit.toggleBtn.disabled = false;
       elements.redeem.toggleBtn.disabled = false;
 
@@ -198,13 +215,13 @@ document.addEventListener("DOMContentLoaded", () => {
       elements.redeem.balance.innerText = formattedShares;
 
       // Update UI labels
-      elements.deposit.balanceLabel.innerText = `${assetSymbol}:`;
+      elements.deposit.balanceLabel.innerText = `${assetSymbol} Balance:`;
       elements.deposit.input.placeholder = `Enter ${assetSymbol} amount`;
       elements.deposit.executeBtn.innerText = `Deposit ${assetSymbol}`;
 
-      elements.redeem.balanceLabel.innerText = `${vaultSymbol}:`;
+      elements.redeem.balanceLabel.innerText = `${vaultSymbol} Balance:`;
       elements.redeem.input.placeholder = `Enter ${vaultSymbol} amount`;
-      elements.redeem.executeBtn.innerText = `Withdraw ${vaultSymbol}`;
+      elements.redeem.executeBtn.innerText = `Redeem ${vaultSymbol}`;
     } catch (error) {
       console.error("Failed to update balances:", error);
       elements.deposit.balance.innerText = "Error";
