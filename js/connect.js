@@ -203,7 +203,7 @@ export class ConnectWallet {
         method: "wallet_switchEthereumChain",
         params: [{ chainId: networkConfig.chainIdHex }],
       });
-
+      this.hideWalletList();
       this.storage.setItem("connectCurrentChainId", networkConfig.chainIdHex);
       this.updateNetworkStatus(networkConfig.chainIdHex);
       this.render();
