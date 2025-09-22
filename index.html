@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
 
     <!-- Primary Meta -->
     <meta name="title" content="pool" />
@@ -62,6 +65,13 @@
         --vault-shadow: 0 4px 10px color-mix(in srgb, black 40%, transparent);
         --btn-color-hvr: color-mix(in srgb, var(--color-bg) 85%, white 15%);
       }
+      html {
+        block-size: 100dvh;
+        inline-size: 100%;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
+        box-sizing: border-box;
+      }
       body {
         background: var(--color-bg);
         color: var(--color-txt);
@@ -72,7 +82,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
+        min-height: 100dvh;
         margin: 0;
       }
 
