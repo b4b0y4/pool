@@ -242,24 +242,3 @@
     box-shadow: 0 0 0 0 rgba(var(--connect-dot), 0);
   }
 }
-
-@media (max-width: 480px) {
-  .connect-wallet-list {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100vw;
-    margin-left: 0;
-    border-radius: 20px 20px 0 0;
-    padding: 10px;
-    box-sizing: border-box;
-    transform: translateY(100%);
-    opacity: 0;
-  }
-
-  .connect-wallet-list.show {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
