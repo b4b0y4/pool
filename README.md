@@ -1,6 +1,6 @@
 # PoolTogether Vault Interface
 
-A lightweight interface for interacting with **WETH PoolTogether V5 vaults**.
+A lightweight interface for interacting with **PoolTogether V5 WETH vaults**.
 
 ## Features
 
