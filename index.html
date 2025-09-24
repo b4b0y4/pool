@@ -40,6 +40,16 @@
       content="https://pool.baboya.eth.limo/assets/img/pool.png"
     />
     <title>pool</title>
+    <script>
+      (() => {
+        const themes = ["light", "dark"];
+        const sys = matchMedia("(prefers-color-scheme: dark)").matches ? 1 : 0;
+        const cur = localStorage.themeOverride
+          ? themes.indexOf(localStorage.themeOverride)
+          : sys;
+        document.documentElement.dataset.theme = themes[cur];
+      })();
+    </script>
     <link rel="icon" type="image/x-icon" href="./assets/img/favicon.ico" />
     <link
       rel="apple-touch-icon"
