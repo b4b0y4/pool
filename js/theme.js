@@ -9,7 +9,7 @@ const themeManager = {
   apply() {
     let o = localStorage.themeOverride,
       t = this.themes[this.cur()];
-    Object.assign(document.body.dataset, {
+    Object.assign(document.documentElement.dataset, {
       theme: t,
       themeSource: o ? "manual" : "system",
       selectedTheme: o ? t : "",
