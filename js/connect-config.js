@@ -47,20 +47,4 @@ export const networkConfigs = {
     icon: "./assets/img/scroll.png",
     showInUI: false,
   },
-  zkevm: {
-    name: "zkEvm",
-    rpcUrl: "https://zkevm-rpc.com",
-    chainId: 1101,
-    chainIdHex: "0x44d",
-    icon: "./assets/img/zkevm.png",
-    showInUI: false,
-  },
-  sepolia: {
-    name: "Sepolia",
-    rpcUrl: "https://rpc.sepolia.org",
-    chainId: 11155111,
-    chainIdHex: "0xaa36a7",
-    icon: "./assets/img/sepolia.png",
-    showInUI: false,
-  },
 };

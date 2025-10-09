@@ -7,22 +7,23 @@
 
 #notificationContainer {
   position: fixed;
-  top: 20px;
+  bottom: 20px;
   left: 20px;
   z-index: 1000;
-  max-width: 400px;
+  max-width: 500px;
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .notification {
   position: relative;
-  margin-bottom: 10px;
   transform: translateX(-100%);
   opacity: 0;
   transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   pointer-events: auto;
   max-width: 100%;
-
   &.show {
     transform: translateX(0);
     opacity: 1;
@@ -32,52 +33,43 @@
     opacity: 0;
   }
 
-  &.info .notif-content {
-    color: rgb(var(--color-blue));
-    background-color: rgba(var(--color-blue), 0.1);
-    border-left-color: rgb(var(--color-blue));
-    box-shadow: 0 4px 8px rgba(var(--color-blue), 0.15);
+  &.info,
+  &.tx-notification.pending {
+    --notif-color: var(--color-blue);
   }
-  &.success .notif-content {
-    color: rgb(var(--color-green));
-    background-color: rgba(var(--color-green), 0.1);
-    border-left-color: rgb(var(--color-green));
-    box-shadow: 0 4px 8px rgba(var(--color-green), 0.15);
+  &.success,
+  &.tx-notification.success {
+    --notif-color: var(--color-green);
   }
-  &.warning .notif-content {
-    color: rgb(var(--color-orange));
-    background-color: rgba(var(--color-orange), 0.1);
-    border-left-color: rgb(var(--color-orange));
-    box-shadow: 0 4px 8px rgba(var(--color-orange), 0.15);
+  &.warning {
+    --notif-color: var(--color-orange);
   }
-  &.danger .notif-content {
-    color: rgb(var(--color-red));
-    background-color: rgba(var(--color-red), 0.1);
-    border-left-color: rgb(var(--color-red));
-    box-shadow: 0 4px 8px rgba(var(--color-red), 0.15);
+  &.danger,
+  &.tx-notification.failed {
+    --notif-color: var(--color-red);
   }
-}
 
-.notif-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 0 4px 8px rgba(0, 0, 0, 0.12);
-  border-left: 4px solid;
-  position: relative;
-  overflow: hidden;
-}
+  .notif-content {
+    color: rgb(var(--notif-color));
+    background-color: rgba(var(--notif-color), 0.1);
+    border-left: 4px solid rgb(var(--notif-color));
+    box-shadow: 0 4px 8px rgba(var(--notif-color), 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+  }
 
-.notif-message {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex: 1;
+  .notif-close:hover {
+    background-color: rgba(var(--notif-color), 0.2);
+  }
 }
 
 .notif-close {
@@ -90,8 +82,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 12px;
+  margin-left: 8px;
   color: currentColor;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.notification.tx-notification {
+  &.pending .tx-icon {
+    color: rgb(var(--color-blue));
+  }
+  &.success .tx-icon {
+    color: rgb(var(--color-green));
+  }
+  &.failed .tx-icon {
+    color: rgb(var(--color-red));
+  }
+  &.success .tx-icon::before {
+    content: "✓";
+    font-size: 20px;
+    font-weight: bold;
+  }
+  &.failed .tx-icon::before {
+    content: "✗";
+    font-size: 20px;
+    font-weight: bold;
+  }
 }
 
 .progress-bar {
@@ -115,6 +131,65 @@
   }
 }
 
+.tx-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.tx-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: tx-spin 0.8s linear infinite;
+}
+
+@keyframes tx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tx-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tx-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-txt);
+}
+.tx-hash {
+  font-size: 12px;
+  color: var(--color-txt);
+  opacity: 0.8;
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    &:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+  }
+}
+.tx-status {
+  font-size: 12px;
+  margin-left: 8px;
+  font-weight: 500;
+  color: var(--color-txt);
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
 @media (max-width: 480px) {
   #notificationContainer {
     left: 10px;
@@ -125,5 +200,13 @@
   .notif-content {
     padding: 12px 16px;
     font-size: 14px;
+  }
+  .tx-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .tx-spinner {
+    width: 16px;
+    height: 16px;
   }
 }

@@ -8,6 +8,10 @@
   align-items: center;
   justify-content: center;
   color: var(--color-txt);
+  transition: opacity 0.3s;
+  &:hover {
+    opacity: 0.6;
+  }
 }
 #theme-btn svg {
   position: absolute;

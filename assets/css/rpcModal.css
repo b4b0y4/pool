@@ -1,0 +1,113 @@
+#settings-btn {
+  border: 0;
+  background: 0;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-txt);
+  transition: opacity 0.3s;
+  &:hover {
+    opacity: 0.6;
+  }
+}
+
+.rpc-modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+  &.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.rpc-modal-content {
+  background-color: var(--color-bg);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: var(--connect-shadow);
+  width: 90%;
+  max-width: 500px;
+  color: var(--color-txt);
+  transform: scale(0.9);
+  transition: transform 0.3s ease-in-out;
+}
+
+.rpc-modal.show .rpc-modal-content {
+  transform: scale(1);
+}
+
+.rpc-close-btn {
+  float: right;
+  font-size: 28px;
+  padding: 0.5px 5.5px 6px;
+  border-radius: 50%;
+  font-weight: bold;
+  line-height: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  &:hover {
+    background-color: var(--connect-color-btn);
+  }
+}
+
+#rpc-inputs {
+  display: grid;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+#rpc-inputs div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#rpc-inputs label {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+#rpc-inputs input {
+  padding: 8px 12px;
+  border: 1px solid var(--connect-color-btn);
+  border-radius: 6px;
+  background-color: var(--color-bg);
+  color: var(--color-txt);
+  font-size: 14px;
+}
+
+#rpc-inputs input:focus {
+  outline: none;
+  border-color: rgb(var(--connect-dot));
+}
+
+#save-rpc-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: rgb(var(--connect-dot));
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: opacity 0.3s;
+  &:hover {
+    opacity: 0.8;
+  }
+}

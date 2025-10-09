@@ -1,14 +1,14 @@
 import { ethers } from "./libs/ethers.min.js";
 import { networkConfigs } from "./connect-config.js";
+import Copy from "./copy.js";
+import { getRpcUrl } from "./rpcModal.js";
 
 export class ConnectWallet {
   constructor(options = {}) {
     this.networkConfigs = options.networkConfigs || networkConfigs;
     this.providers = [];
     this.storage = options.storage || window.localStorage;
-    this.elements = {};
     this.currentProvider = null;
-    this.eventsSetup = false;
 
     // Precompute lookups
     this.chainIdToName = {};
@@ -20,10 +20,33 @@ export class ConnectWallet {
       }
     });
 
-    this.init();
+    // Auto-discover elements (deferred until DOM is ready)
+    this.elements = {};
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => this.init());
+    } else {
+      this.init();
+    }
   }
 
-  // Normalize hex or decimal chainId
+  init() {
+    this.discoverElements();
+    this.bindEvents();
+    this.setupUIEvents();
+    this.requestProviders();
+    this.restoreState();
+    this.render();
+  }
+
+  discoverElements() {
+    this.elements = {
+      connectBtn: document.querySelector("#connect-btn"),
+      connectModal: document.querySelector("#connect-modal"),
+      connectChainList: document.querySelector("#connect-chain-list"),
+      connectWalletList: document.querySelector("#connect-wallet-list"),
+    };
+  }
+
   normalizeChainId(chainId) {
     if (typeof chainId === "string" && chainId.startsWith("0x")) {
       return parseInt(chainId, 16);
@@ -31,32 +54,34 @@ export class ConnectWallet {
     return Number(chainId);
   }
 
-  // Check if chain is allowed
   isAllowed(chainId) {
     const normalized = this.normalizeChainId(chainId);
     return this.allowedChains.includes(normalized);
   }
 
-  init() {
-    this.bindEvents();
-    this.requestProviders();
-    this.restoreState();
-  }
-
-  setElements(elements) {
-    this.elements = {
-      connectBtn: null,
-      connectChainList: null,
-      connectWalletList: null,
-      connectWallets: null,
-      ...elements,
-    };
-    this.render();
-  }
-
   bindEvents() {
     window.addEventListener("eip6963:announceProvider", (event) => {
       this.handleProviderAnnounce(event);
+    });
+  }
+
+  setupUIEvents() {
+    if (this.elements.connectBtn) {
+      this.elements.connectBtn.addEventListener("click", (event) => {
+        if (event.target.closest("[data-copy]")) return;
+        event.stopPropagation();
+        this.toggleModal();
+      });
+    }
+
+    if (this.elements.connectModal) {
+      this.elements.connectModal.addEventListener("click", (event) => {
+        event.stopPropagation();
+      });
+    }
+
+    document.addEventListener("click", () => {
+      this.hideModal();
     });
   }
 
@@ -80,7 +105,7 @@ export class ConnectWallet {
 
   createButton(config, onClick) {
     const button = document.createElement("button");
-    button.innerHTML = `<img src="${config.icon}">${config.name}<span class="connect-indicator" style="display: none"></span>`;
+    button.innerHTML = `<img src="${config.icon}">${config.name}<span class="connect-dot" style="display: none"></span>`;
     button.onclick = onClick;
     return button;
   }
@@ -120,12 +145,10 @@ export class ConnectWallet {
   }
 
   setupProviderEvents(provider) {
-    // Only setup events once per connection
     if (this.currentProvider === provider.provider) {
       return;
     }
 
-    // Remove old event listeners if switching providers
     if (this.currentProvider) {
       this.currentProvider.removeAllListeners?.();
     }
@@ -160,9 +183,13 @@ export class ConnectWallet {
   updateAddress(address) {
     if (this.elements.connectBtn) {
       const short = `${address.substring(0, 5)}...${address.substring(address.length - 4)}`;
-      this.elements.connectBtn.innerHTML = short;
+      this.elements.connectBtn.innerHTML = `
+        <span class="connect-address-text">${short}</span>
+        <span class="connect-copy-icon" data-copy="${address}"></span>
+      `;
       this.elements.connectBtn.classList.add("connected");
       this.elements.connectBtn.classList.remove("ens-resolved");
+      this.elements.connectBtn.setAttribute("data-address", address);
       this.resolveENS(address);
     }
   }
@@ -171,9 +198,7 @@ export class ConnectWallet {
     if (!this.elements.connectBtn) return;
 
     try {
-      const mainnetProvider = new ethers.JsonRpcProvider(
-        this.networkConfigs.ethereum.rpcUrl,
-      );
+      const mainnetProvider = new ethers.JsonRpcProvider(getRpcUrl("ethereum"));
       const ensName = await mainnetProvider.lookupAddress(address);
       if (!ensName) return;
 
@@ -182,13 +207,22 @@ export class ConnectWallet {
         address.length - 4,
       )}`;
 
-      let buttonContent = `<div class="ens-details"><div class="ens-name">${ensName}</div><div class="ens-address">${short}</div></div>`;
+      let buttonContent = `
+        <div class="ens-details">
+          <div class="ens-name">${ensName}</div>
+          <div class="ens-address-row">
+            <span class="ens-address">${short}</span>
+            <span class="connect-copy-icon" data-copy="${address}"></span>
+          </div>
+        </div>
+      `;
       if (ensAvatar) {
         buttonContent += `<img src="${ensAvatar}" style="border-radius: 50%">`;
       }
 
       this.elements.connectBtn.innerHTML = buttonContent;
       this.elements.connectBtn.classList.add("ens-resolved");
+      this.elements.connectBtn.setAttribute("data-address", address);
     } catch (error) {
       console.log("ENS resolution failed:", error);
     }
@@ -203,7 +237,7 @@ export class ConnectWallet {
         method: "wallet_switchEthereumChain",
         params: [{ chainId: networkConfig.chainIdHex }],
       });
-      this.hideWalletList();
+      this.hideModal();
       this.storage.setItem("connectCurrentChainId", networkConfig.chainIdHex);
       this.updateNetworkStatus(networkConfig.chainIdHex);
       this.render();
@@ -256,23 +290,23 @@ export class ConnectWallet {
       this.elements.connectBtn.classList.remove("connected", "ens-resolved");
     }
 
-    if (this.elements.connectWalletList) {
-      this.elements.connectWalletList.classList.remove("show");
+    if (this.elements.connectModal) {
+      this.elements.connectModal.classList.remove("show");
     }
 
     this.updateNetworkStatus(this.networkConfigs.ethereum.chainIdHex);
     this.render();
   }
 
-  toggleWalletList() {
-    if (this.elements.connectWalletList) {
-      this.elements.connectWalletList.classList.toggle("show");
+  toggleModal() {
+    if (this.elements.connectModal) {
+      this.elements.connectModal.classList.toggle("show");
     }
   }
 
-  hideWalletList() {
-    if (this.elements.connectWalletList) {
-      this.elements.connectWalletList.classList.remove("show");
+  hideModal() {
+    if (this.elements.connectModal) {
+      this.elements.connectModal.classList.remove("show");
     }
   }
 
@@ -283,23 +317,23 @@ export class ConnectWallet {
   }
 
   renderWalletProviders() {
-    if (!this.elements.connectWallets) return;
+    if (!this.elements.connectWalletList) return;
 
-    this.elements.connectWallets.innerHTML = "";
+    this.elements.connectWalletList.innerHTML = "";
     const connectedWallet = this.getLastWallet();
 
     this.providers.forEach((provider) => {
       const button = this.createButton(provider.info, () => {
-        this.hideWalletList();
+        this.hideModal();
         this.connectWallet(provider.info.name);
       });
 
       const isConnected = provider.info.name === connectedWallet;
-      button.querySelector(".connect-indicator").style.display = isConnected
+      button.querySelector(".connect-dot").style.display = isConnected
         ? "inline-block"
         : "none";
 
-      this.elements.connectWallets.appendChild(button);
+      this.elements.connectWalletList.appendChild(button);
     });
   }
 
@@ -310,25 +344,44 @@ export class ConnectWallet {
     const currentChainId = this.getCurrentChainId();
     const isConnected = this.isConnected();
 
-    Object.entries(this.networkConfigs)
-      .filter(([, config]) => config.showInUI)
-      .forEach(([networkName, networkConfig]) => {
-        const button = document.createElement("button");
-        button.id = `connect-${networkName}`;
-        button.title = networkConfig.name;
+    const networksToShow = Object.entries(this.networkConfigs).filter(
+      ([, config]) => config.showInUI,
+    );
+
+    const isSingleNetwork = networksToShow.length === 1;
+
+    this.elements.connectChainList.classList.toggle(
+      "single-network",
+      isSingleNetwork,
+    );
+
+    networksToShow.forEach(([networkName, networkConfig]) => {
+      const button = document.createElement("button");
+      button.id = `connect-${networkName}`;
+      button.title = networkConfig.name;
+
+      if (isSingleNetwork) {
+        button.classList.add("chain-single");
+        button.innerHTML = `<img src="${networkConfig.icon}" alt="${networkConfig.name}"><span class="connect-name">${networkConfig.name}</span><span class="connect-dot" style="display: none"></span>`;
+      } else {
         button.innerHTML = `<img src="${networkConfig.icon}" alt="${networkConfig.name}">`;
-        button.onclick = () => this.switchNetwork(networkConfig);
+      }
 
-        const indicator = document.createElement("span");
-        indicator.className = "connect-indicator";
-        indicator.style.display =
-          isConnected && networkConfig.chainIdHex === currentChainId
-            ? "inline-block"
-            : "none";
+      button.onclick = () => this.switchNetwork(networkConfig);
 
-        button.appendChild(indicator);
-        this.elements.connectChainList.appendChild(button);
-      });
+      const indicator = document.createElement("span");
+      indicator.className = isSingleNetwork
+        ? "connect-dot"
+        : "connect-dot-icon";
+      button.appendChild(indicator);
+
+      indicator.style.display =
+        isConnected && networkConfig.chainIdHex === currentChainId
+          ? "inline-block"
+          : "none";
+
+      this.elements.connectChainList.appendChild(button);
+    });
   }
 
   renderGetWallet() {
@@ -356,7 +409,6 @@ export class ConnectWallet {
     }
   }
 
-  // Helper methods
   isConnected() {
     return this.storage.getItem("connectConnected") === "true";
   }
@@ -375,7 +427,6 @@ export class ConnectWallet {
     return provider?.provider;
   }
 
-  // Public API methods
   async getAccount() {
     const provider = this.getConnectedProvider();
     if (!provider) return null;
@@ -394,7 +445,8 @@ export class ConnectWallet {
     if (!provider) return null;
 
     try {
-      return await provider.request({ method: "eth_chainId" });
+      const raw = await provider.request({ method: "eth_chainId" });
+      return this.normalizeChainId(raw);
     } catch (error) {
       console.error("Failed to get chain ID:", error);
       return null;
@@ -410,7 +462,6 @@ export class ConnectWallet {
     return provider ? new ethers.BrowserProvider(provider) : null;
   }
 
-  // Event handlers for external use
   onConnect(callback) {
     this.onConnectCallback = callback;
   }

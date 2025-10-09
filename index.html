@@ -59,11 +59,13 @@
     <link rel="stylesheet" href="./assets/css/theme.css" />
     <link rel="stylesheet" href="./assets/css/notifications.css" />
     <link rel="stylesheet" href="./assets/css/connect.css" />
+    <link rel="stylesheet" href="./assets/css/copy.css" />
+    <link rel="stylesheet" href="./assets/css/rpcModal.css" />
     <style>
       /* Base layout */
       :root {
-        --color-bg: #e4dbef;
-        --color-txt: #1b1a1b;
+        --color-bg: #7851d6;
+        --color-txt: #f4f0fe;
         --vault-color-bg: color-mix(in srgb, var(--color-bg) 95%, black 10%);
         --vault-shadow: 0 4px 10px color-mix(in srgb, black 15%, transparent);
         --btn-color-hvr: color-mix(in srgb, var(--color-bg) 85%, black 15%);
@@ -97,6 +99,10 @@
       }
 
       /* Vault styles */
+      input::placeholder {
+        opacity: 0.4;
+        color: var(--color-txt);
+      }
       .vault-interaction {
         max-width: 500px;
         width: 800px;
@@ -283,7 +289,8 @@
         align-items: center;
       }
       .github-link {
-        color: var(--btn-color-hvr);
+        color: var(--color-txt);
+        opacity: 0.4;
         text-decoration: none;
         font-size: 0.9em;
       }
@@ -293,6 +300,16 @@
     </style>
   </head>
   <body>
+    <!-- RPC Settings Modal -->
+    <div id="rpc-modal" class="rpc-modal">
+      <div class="rpc-modal-content">
+        <span class="rpc-close-btn">&times;</span>
+        <h2>Custom RPC Settings</h2>
+        <div id="rpc-inputs"></div>
+        <button id="save-rpc-btn">Save</button>
+      </div>
+    </div>
+
     <!-- Notifications Container -->
     <div id="notificationContainer"></div>
 
@@ -462,16 +479,44 @@
       <!-- Footer for Connect Button -->
       <div class="vault-footer">
         <a href="" class="github-link">GitHub</a>
-        <div class="connect-widget">
-          <button id="connect-btn" class="connect-btn">Connect</button>
-          <div id="connect-wallet-list" class="connect-wallet-list">
-            <div class="connect-chain-list" id="connect-chain-list"></div>
-            <div id="connect-get-wallet" class="connect-get-wallet">
-              <a href="https://ethereum.org/en/wallets/" target="_blank"
-                >Get a Wallet!</a
-              >
+        <div
+          style="
+            display: flex;
+            justify-content: end;
+            align-items: center;
+            gap: 10px;
+          "
+        >
+          <!-- Settings Button -->
+          <button id="settings-btn" aria-label="Settings" title="RPC Settings">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="3"></circle>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+              ></path>
+            </svg>
+          </button>
+          <div class="connect-widget">
+            <button id="connect-btn" class="connect-btn">Connect</button>
+            <div id="connect-modal" class="connect-modal">
+              <div class="connect-chain-list" id="connect-chain-list"></div>
+              <div id="connect-get-wallet" class="connect-get-wallet">
+                <a href="https://ethereum.org/en/wallets/" target="_blank"
+                  >Get a Wallet!</a
+                >
+              </div>
+              <div id="connect-wallet-list" class="connect-wallet-list"></div>
             </div>
-            <div id="connect-wallets" class="connect-wallets"></div>
           </div>
         </div>
       </div>

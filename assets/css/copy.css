@@ -1,0 +1,26 @@
+:root {
+  --copy-color-success: 119, 237, 209;
+  --copy-color-error: 234, 51, 35;
+}
+
+[data-copy] {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+[data-copy] svg:hover {
+  opacity: 0.8;
+}
+
+svg {
+  transition: opacity 0.3s;
+}
+
+.copy-success svg {
+  color: rgb(var(--copy-color-success));
+}
+
+.copy-error svg {
+  color: rgb(var(--copy-color-error));
+}
