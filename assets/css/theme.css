@@ -8,9 +8,10 @@
   align-items: center;
   justify-content: center;
   color: var(--color-txt);
+  opacity: 0.6;
   transition: opacity 0.3s;
   &:hover {
-    opacity: 0.6;
+    opacity: 1;
   }
 }
 #theme-btn svg {
