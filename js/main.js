@@ -1,10 +1,10 @@
+import { poolContracts } from "./pool-contracts.js";
+import { networkConfigs } from "./connect-config.js";
+import { ethers } from "./libs/ethers.min.js";
 import Notification from "./notifications.js";
 import { ConnectWallet } from "./connect.js";
 import Copy from "./copy.js";
 import { getRpcUrl } from "./rpcModal.js";
-import { poolContracts } from "./pool-contracts.js";
-import { ethers } from "./libs/ethers.min.js";
-import { networkConfigs } from "./connect-config.js";
 
 const wallet = new ConnectWallet();
 
