@@ -100,7 +100,7 @@
   width: 100%;
   padding: 10px;
   background-color: rgb(var(--connect-dot));
-  color: white;
+  color: var(--color-txt);
   border: none;
   border-radius: 6px;
   cursor: pointer;
