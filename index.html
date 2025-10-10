@@ -64,7 +64,7 @@
     <style>
       /* Base layout */
       :root {
-        --color-bg: #c0a9f9;
+        --color-bg: #e4dbef;
         --color-txt: #1b1a1b;
         --vault-color-bg: color-mix(in srgb, var(--color-bg) 95%, black 10%);
         --vault-shadow: 0 4px 10px color-mix(in srgb, black 15%, transparent);
@@ -290,12 +290,13 @@
       }
       .github-link {
         color: var(--color-txt);
-        opacity: 0.4;
+        opacity: 0.6;
         text-decoration: none;
         font-size: 0.9em;
-      }
-      .github-link:hover {
-        text-decoration: underline;
+        transition: opacity 0.3s;
+        &:hover {
+          opacity: 1;
+        }
       }
     </style>
   </head>
