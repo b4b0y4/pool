@@ -154,6 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (currentNetworkConfig) {
         elements.networkLogo.src = currentNetworkConfig.icon;
+        elements.networkLogo.title = currentNetworkConfig.name;
         elements.networkLogo.style.display = "block";
       } else {
         elements.networkLogo.style.display = "none";
