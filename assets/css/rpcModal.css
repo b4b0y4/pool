@@ -93,22 +93,21 @@
 
 #rpc-inputs input:focus {
   outline: none;
-  border-color: rgb(var(--connect-dot));
+  border-color: var(--connect-color-hvr);
 }
 
 #save-rpc-btn {
   width: 100%;
   padding: 10px;
-  background-color: rgb(var(--connect-dot));
+  background-color: var(--connect-color-btn);
   color: var(--color-txt);
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 500;
-  opacity: 0.8;
-  transition: opacity 0.3s;
+  transition: background-color 0.3s;
   &:hover {
-    opacity: 1;
+    background-color: var(--connect-color-hvr);
   }
 }
