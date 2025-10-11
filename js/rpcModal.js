@@ -54,7 +54,7 @@ saveRpcBtn.onclick = function () {
       }
     }
   }
-  rpcModal.classList.remove("show");
+  toggleModal(false);
 };
 
 export function getRpcUrl(network) {
