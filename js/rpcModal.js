@@ -6,19 +6,20 @@ const rpcCloseBtn = document.getElementsByClassName("rpc-close-btn")[0];
 const rpcInputs = document.getElementById("rpc-inputs");
 const saveRpcBtn = document.getElementById("save-rpc-btn");
 
-settingsBtn.onclick = function () {
+function toggleModal(show) {
+  rpcModal.classList.toggle("show", show);
+  settingsBtn.classList.toggle("active", show);
+}
+
+settingsBtn.onclick = () => {
   populateRpcInputs();
-  rpcModal.classList.add("show");
+  toggleModal(true);
 };
 
-rpcCloseBtn.onclick = function () {
-  rpcModal.classList.remove("show");
-};
+rpcCloseBtn.onclick = () => toggleModal(false);
 
-window.onclick = function (event) {
-  if (event.target == rpcModal) {
-    rpcModal.classList.remove("show");
-  }
+window.onclick = (e) => {
+  if (e.target === rpcModal) toggleModal(false);
 };
 
 function populateRpcInputs() {
