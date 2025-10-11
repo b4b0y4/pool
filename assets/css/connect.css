@@ -90,23 +90,13 @@
 }
 
 .connect-copy-icon {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 18px;
   height: 18px;
   border-radius: 4px;
-  cursor: pointer;
-  opacity: 0.6;
-  transition: all 0.2s;
   flex-shrink: 0;
-  &:hover {
-    opacity: 1;
-  }
-  &:active {
-    transform: scale(0.9);
-  }
   & svg {
     display: block;
     width: 14px;
