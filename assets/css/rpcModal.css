@@ -86,16 +86,16 @@
 
 #rpc-inputs label {
   font-weight: 500;
-  font-size: 14px;
+  font-size: 1em;
 }
 
 #rpc-inputs input {
-  padding: 8px 12px;
+  padding: 7.5px 15px;
   border: 1px solid var(--connect-color-btn);
   border-radius: 6px;
   background-color: var(--color-bg);
   color: var(--color-txt);
-  font-size: 14px;
+  font-size: 1em;
 }
 
 #rpc-inputs input:focus {
@@ -111,7 +111,7 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1.1em;
   font-weight: 500;
   transition: background-color 0.3s;
   &:hover {
