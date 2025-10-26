@@ -1,5 +1,5 @@
-import { poolContracts } from "./pool-contracts.js";
 import { ethers } from "./libs/ethers.min.js";
+import { poolContracts } from "./pool-contracts.js";
 import {
   ConnectWallet,
   Notification,
