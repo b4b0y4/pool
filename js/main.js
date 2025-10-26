@@ -31,16 +31,11 @@ const CONFIG = {
 // ABIs
 const ABIS = {
   weth: ["function deposit() payable", "function withdraw(uint256 wad)"],
-  prizeVault: [
+  vault: [
     "function redeem(uint256 _shares, address _receiver, address _owner) external returns (uint256)",
     "function deposit(uint256 _assets, address _receiver) external returns (uint256)",
     "function asset() view returns (address)",
     "function balanceOf(address) view returns (uint256)",
-    "function decimals() view returns (uint8)",
-    "function symbol() view returns (string)",
-  ],
-  erc20: [
-    "function balanceOf(address account) view returns (uint256)",
     "function decimals() view returns (uint8)",
     "function symbol() view returns (string)",
     "function approve(address, uint256) returns (bool)",
@@ -59,7 +54,7 @@ function formatBalance(balanceString, maxDecimals = CONFIG.maxDecimals) {
 
 function getVaultContract(chainId) {
   const address = CONFIG.prizeVaultAddress[Number(chainId)];
-  return address ? { address, abi: ABIS.prizeVault } : null;
+  return address ? { address, abi: ABIS.vault } : null;
 }
 
 function getSupportedNetworksList() {
@@ -178,20 +173,10 @@ class UIManager {
   }
 
   showUnsupportedVault() {
-    this.elements.deposit.balance.innerText = "Unsupported Vault";
-    this.elements.redeem.balance.innerText = "";
-    this.elements.deposit.balanceLabel.innerText = "Status:";
-    this.elements.redeem.balanceLabel.innerText = "";
+    this.elements.deposit.balance.innerText = "Switch network";
+    this.elements.redeem.balance.innerText = "Switch network";
     this.setButtonState("deposit", true);
     this.setButtonState("redeem", true);
-
-    [this.elements.deposit.accordion, this.elements.redeem.accordion].forEach(
-      (acc) => {
-        acc.classList.remove("open");
-        acc.style.maxHeight = null;
-      },
-    );
-
     this.elements.deposit.icon.style.display = "none";
     this.elements.redeem.icon.style.display = "none";
   }
@@ -230,30 +215,31 @@ class ContractManager {
         ui.elements.networkLogo.style.display = "none";
       }
 
-      // Update ETH balance
-      const ethBalance = await provider.getBalance(userAddress);
-      const formattedEth = ethers.formatUnits(ethBalance, 18);
-      this.rawBalances.eth = formattedEth;
-      ui.elements.wrap.ethBalance.innerText = formatBalance(formattedEth);
-
-      // Update WETH button state
-      ui.setButtonState("wrap", !CONFIG.wethAddresses[chainId]);
-
-      // Update vault balances
+      // Check if network is supported
       const currentVault = getVaultContract(chainId);
       if (!currentVault) {
         if (this.isNetworkSupported) {
-          const message = `Unsupported network for vault. Please switch to: ${getSupportedNetworksList()}.`;
-          Notification.show(message, "warning");
+          Notification.show(
+            `Unsupported network. Switch to: ${getSupportedNetworksList()}`,
+            "warning",
+          );
         }
         this.isNetworkSupported = false;
         ui.showUnsupportedVault();
+        ui.setButtonState("wrap", true);
         return;
       }
 
       this.isNetworkSupported = true;
       ui.setButtonState("deposit", false);
       ui.setButtonState("redeem", false);
+      ui.setButtonState("wrap", false);
+
+      // Update ETH balance
+      const ethBalance = await provider.getBalance(userAddress);
+      const formattedEth = ethers.formatUnits(ethBalance, 18);
+      this.rawBalances.eth = formattedEth;
+      ui.elements.wrap.ethBalance.innerText = formatBalance(formattedEth);
 
       const signer = await provider.getSigner();
       const vaultContract = new ethers.Contract(
@@ -264,7 +250,7 @@ class ContractManager {
       const assetAddress = await vaultContract.asset();
       const assetContract = new ethers.Contract(
         assetAddress,
-        ABIS.erc20,
+        currentVault.abi,
         signer,
       );
 
@@ -330,6 +316,7 @@ class ContractManager {
 
     const tx = await wethContract.deposit({ value: amountInWei });
     Notification.track(tx.hash, chainId, rpcUrl, { label: "Wrapping ETH" });
+    await tx.wait();
 
     ui.elements.wrap.input.value = "";
     await this.updateBalances(ui);
@@ -350,6 +337,7 @@ class ContractManager {
 
     const tx = await wethContract.withdraw(amountInWei);
     Notification.track(tx.hash, chainId, rpcUrl, { label: "Unwrapping WETH" });
+    await tx.wait();
 
     ui.elements.wrap.input.value = "";
     await this.updateBalances(ui);
@@ -370,7 +358,11 @@ class ContractManager {
       signer,
     );
     const assetAddress = await vaultContract.asset();
-    const assetContract = new ethers.Contract(assetAddress, ABIS.erc20, signer);
+    const assetContract = new ethers.Contract(
+      assetAddress,
+      currentVault.abi,
+      signer,
+    );
     const assetDecimals = await assetContract.decimals();
     const amountInWei = ethers.parseUnits(amount, assetDecimals);
 
@@ -396,6 +388,7 @@ class ContractManager {
     Notification.track(tx.hash, chainId, rpcUrl, {
       label: "Depositing to Vault",
     });
+    await tx.wait();
 
     ui.elements.deposit.input.value = "";
     await this.updateBalances(ui);
@@ -423,6 +416,7 @@ class ContractManager {
 
     const tx = await vaultContract.redeem(sharesAmount, owner, owner);
     Notification.track(tx.hash, chainId, rpcUrl, { label: "Redeeming Shares" });
+    await tx.wait();
 
     ui.elements.redeem.input.value = "";
     await this.updateBalances(ui);
