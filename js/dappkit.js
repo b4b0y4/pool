@@ -38,33 +38,6 @@ export const networkConfigs = {
     explorerUrl: "https://basescan.org/tx/",
     showInUI: true,
   },
-  zksync: {
-    name: "ZKsync",
-    rpcUrl: "https://mainnet.era.zksync.io",
-    chainId: 324,
-    chainIdHex: "0x144",
-    icon: "./assets/img/zksync.png",
-    explorerUrl: "https://explorer.zksync.io/tx/",
-    showInUI: false,
-  },
-  scroll: {
-    name: "Scroll",
-    rpcUrl: "https://rpc.scroll.io",
-    chainId: 534352,
-    chainIdHex: "0x82750",
-    icon: "./assets/img/scroll.png",
-    explorerUrl: "https://scrollscan.com/tx/",
-    showInUI: false,
-  },
-  sepolia: {
-    name: "Sepolia",
-    rpcUrl: "https://rpc.sepolia.org",
-    chainId: 11155111,
-    chainIdHex: "0xaa36a7",
-    icon: "./assets/img/sepolia.png",
-    explorerUrl: "https://sepolia.etherscan.io/tx/",
-    showInUI: false,
-  },
 };
 // END networkConfigs.js
 
