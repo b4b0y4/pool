@@ -142,32 +142,12 @@ class UIManager {
     this.elements[section].icon.style.display = iconUrl ? "block" : "none";
   }
 
-  setButtonState(section, disabled) {
-    this.elements[section].toggleBtn.disabled = disabled;
-  }
-
-  setProcessingState(isProcessing) {
-    [
-      this.elements.deposit.executeBtn,
-      this.elements.redeem.executeBtn,
-      this.elements.wrap.wrapBtn,
-      this.elements.wrap.unwrapBtn,
-    ].forEach((btn) => {
-      btn.disabled = isProcessing;
-      btn.style.opacity = isProcessing ? "0.6" : "1";
-      btn.style.cursor = isProcessing ? "not-allowed" : "pointer";
-    });
-  }
-
   resetToDisconnected() {
     this.updateBalance("deposit", "0");
     this.updateBalance("redeem", "0");
     this.elements.wrap.ethBalance.innerText = "0";
     this.elements.wrap.wethBalance.innerText = "0";
     this.elements.networkLogo.style.display = "none";
-    this.setButtonState("deposit", true);
-    this.setButtonState("redeem", true);
-    this.setButtonState("wrap", true);
     this.elements.deposit.icon.style.display = "none";
     this.elements.redeem.icon.style.display = "none";
   }
@@ -175,8 +155,6 @@ class UIManager {
   showUnsupportedVault() {
     this.elements.deposit.balance.innerText = "Switch network";
     this.elements.redeem.balance.innerText = "Switch network";
-    this.setButtonState("deposit", true);
-    this.setButtonState("redeem", true);
     this.elements.deposit.icon.style.display = "none";
     this.elements.redeem.icon.style.display = "none";
   }
@@ -226,14 +204,10 @@ class ContractManager {
         }
         this.isNetworkSupported = false;
         ui.showUnsupportedVault();
-        ui.setButtonState("wrap", true);
         return;
       }
 
       this.isNetworkSupported = true;
-      ui.setButtonState("deposit", false);
-      ui.setButtonState("redeem", false);
-      ui.setButtonState("wrap", false);
 
       // Update ETH balance
       const ethBalance = await provider.getBalance(userAddress);
@@ -429,7 +403,6 @@ class VaultApp {
     this.wallet = new ConnectWallet();
     this.ui = new UIManager();
     this.contracts = new ContractManager(this.wallet);
-    this.isProcessing = false;
   }
 
   init() {
@@ -461,7 +434,7 @@ class VaultApp {
   }
 
   setupUIEvents() {
-    // Accordion toggles
+    // Accordion toggles - work without wallet connection
     this.ui.elements.deposit.toggleBtn.addEventListener("click", () =>
       this.ui.toggleAccordion(this.ui.elements.deposit.accordion),
     );
@@ -526,10 +499,10 @@ class VaultApp {
   }
 
   async handleTransaction(transactionFn) {
-    if (this.isProcessing) return;
-
-    this.isProcessing = true;
-    this.ui.setProcessingState(true);
+    if (!this.wallet.isConnected()) {
+      Notification.show("Please connect your wallet first", "warning");
+      return;
+    }
 
     try {
       await transactionFn();
@@ -539,9 +512,6 @@ class VaultApp {
         err.reason || err.message || "Transaction failed",
         "danger",
       );
-    } finally {
-      this.isProcessing = false;
-      this.ui.setProcessingState(false);
     }
   }
 }
