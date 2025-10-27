@@ -8,10 +8,6 @@ import {
 
 // Configuration
 const CONFIG = {
-  tokenIconMap: {
-    WETH: "./assets/img/weth.png",
-    przWETH: "./assets/img/przweth.png",
-  },
   wethAddresses: {
     10: "0x4200000000000000000000000000000000000006", // Optimism
     8453: "0x4200000000000000000000000000000000000006", // Base
@@ -136,27 +132,17 @@ class UIManager {
     this.elements[section].balance.innerText = formatBalance(value);
   }
 
-  updateTokenIcon(section, symbol) {
-    const iconUrl = CONFIG.tokenIconMap[symbol];
-    this.elements[section].icon.src = iconUrl || "";
-    this.elements[section].icon.style.display = iconUrl ? "block" : "none";
-  }
-
   resetToDisconnected() {
     this.updateBalance("deposit", "0");
     this.updateBalance("redeem", "0");
     this.elements.wrap.ethBalance.innerText = "0";
     this.elements.wrap.wethBalance.innerText = "0";
     this.elements.networkLogo.style.display = "none";
-    this.elements.deposit.icon.style.display = "none";
-    this.elements.redeem.icon.style.display = "none";
   }
 
   showUnsupportedVault() {
     this.elements.deposit.balance.innerText = "Switch network";
     this.elements.redeem.balance.innerText = "Switch network";
-    this.elements.deposit.icon.style.display = "none";
-    this.elements.redeem.icon.style.display = "none";
   }
 }
 
@@ -264,9 +250,6 @@ class ContractManager {
       ui.elements.redeem.balanceLabel.innerText = `${vaultSymbol}:`;
       ui.elements.redeem.input.placeholder = `Enter ${vaultSymbol} amount`;
       ui.elements.redeem.executeBtn.innerText = `Redeem ${vaultSymbol}`;
-
-      ui.updateTokenIcon("deposit", assetSymbol);
-      ui.updateTokenIcon("redeem", vaultSymbol);
     } catch (error) {
       console.error("Failed to update balances:", error);
       ui.elements.deposit.balance.innerText = "Error";
