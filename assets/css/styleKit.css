@@ -483,11 +483,11 @@
 .tx-label {
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-txt);
+  color: currentColor;
 }
 .tx-hash {
   font-size: 12px;
-  color: var(--color-txt);
+  color: currentColor;
   opacity: 0.8;
   a {
     color: inherit;
@@ -503,7 +503,7 @@
   font-size: 12px;
   margin-left: 8px;
   font-weight: 500;
-  color: var(--color-txt);
+  color: currentColor;
   opacity: 0.9;
   white-space: nowrap;
 }
