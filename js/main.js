@@ -268,11 +268,8 @@ class ContractManager {
     const wethContract = new ethers.Contract(wethAddress, ABIS.weth, signer);
     const amountInWei = ethers.parseEther(amount);
 
-    const networkName = getNetworkName(this.wallet, chainId);
-    const rpcUrl = getRpcUrl(networkName);
-
     const tx = await wethContract.deposit({ value: amountInWei });
-    Notification.track(tx.hash, chainId, rpcUrl, { label: "Wrapping ETH" });
+    Notification.track(tx, { label: "Wrapping ETH" });
     await tx.wait();
 
     ui.elements.wrap.input.value = "";
@@ -289,11 +286,8 @@ class ContractManager {
     const wethContract = new ethers.Contract(wethAddress, ABIS.weth, signer);
     const amountInWei = ethers.parseEther(amount);
 
-    const networkName = getNetworkName(this.wallet, chainId);
-    const rpcUrl = getRpcUrl(networkName);
-
     const tx = await wethContract.withdraw(amountInWei);
-    Notification.track(tx.hash, chainId, rpcUrl, { label: "Unwrapping WETH" });
+    Notification.track(tx, { label: "Unwrapping WETH" });
     await tx.wait();
 
     ui.elements.wrap.input.value = "";
@@ -323,9 +317,6 @@ class ContractManager {
     const assetDecimals = await assetContract.decimals();
     const amountInWei = ethers.parseUnits(amount, assetDecimals);
 
-    const networkName = getNetworkName(this.wallet, chainId);
-    const rpcUrl = getRpcUrl(networkName);
-
     const allowance = await assetContract.allowance(
       receiver,
       currentVault.address,
@@ -335,14 +326,14 @@ class ContractManager {
         currentVault.address,
         amountInWei,
       );
-      Notification.track(approveTx.hash, chainId, rpcUrl, {
+      Notification.track(approveTx, {
         label: "Approving Token Transfer",
       });
-      await provider.waitForTransaction(approveTx.hash);
+      await approveTx.wait();
     }
 
     const tx = await vaultContract.deposit(amountInWei, receiver);
-    Notification.track(tx.hash, chainId, rpcUrl, {
+    Notification.track(tx, {
       label: "Depositing to Vault",
     });
     await tx.wait();
@@ -368,11 +359,8 @@ class ContractManager {
     const sharesDecimals = await vaultContract.decimals();
     const sharesAmount = ethers.parseUnits(amount, sharesDecimals);
 
-    const networkName = getNetworkName(this.wallet, chainId);
-    const rpcUrl = getRpcUrl(networkName);
-
     const tx = await vaultContract.redeem(sharesAmount, owner, owner);
-    Notification.track(tx.hash, chainId, rpcUrl, { label: "Redeeming Shares" });
+    Notification.track(tx, { label: "Redeeming Shares" });
     await tx.wait();
 
     ui.elements.redeem.input.value = "";

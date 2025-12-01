@@ -66,35 +66,31 @@ window.onclick = (e) => {
 
 function populateRpcInputs() {
   rpcInputs.innerHTML = "";
-  for (const network in networkConfigs) {
-    if (networkConfigs[network].showInUI) {
-      const div = document.createElement("div");
-      const label = document.createElement("label");
-      label.innerText = networkConfigs[network].name;
-      const input = document.createElement("input");
-      input.id = `${network}-rpc`;
-      input.placeholder = "Enter custom RPC URL";
-      const customRpc = localStorage.getItem(`${network}-rpc`);
-      if (customRpc) {
-        input.value = customRpc;
-      }
-      div.appendChild(label);
-      div.appendChild(input);
-      rpcInputs.appendChild(div);
-    }
+  const network = "ethereum";
+  const networkConfig = networkConfigs[network];
+
+  const div = document.createElement("div");
+  const label = document.createElement("label");
+  label.innerText = networkConfig.name;
+  const input = document.createElement("input");
+  input.id = `${network}-rpc`;
+  input.placeholder = "Enter custom RPC URL";
+  const customRpc = localStorage.getItem(`${network}-rpc`);
+  if (customRpc) {
+    input.value = customRpc;
   }
+  div.appendChild(label);
+  div.appendChild(input);
+  rpcInputs.appendChild(div);
 }
 
 saveRpcBtn.onclick = function () {
-  for (const network in networkConfigs) {
-    if (networkConfigs[network].showInUI) {
-      const input = document.getElementById(`${network}-rpc`);
-      if (input.value) {
-        localStorage.setItem(`${network}-rpc`, input.value);
-      } else {
-        localStorage.removeItem(`${network}-rpc`);
-      }
-    }
+  const network = "ethereum";
+  const input = document.getElementById(`${network}-rpc`);
+  if (input.value) {
+    localStorage.setItem(`${network}-rpc`, input.value);
+  } else {
+    localStorage.removeItem(`${network}-rpc`);
   }
   toggleModal(false);
 };
@@ -216,7 +212,6 @@ export class Notification {
   static transactions = new Map();
   static idCounter = 0;
   static initialized = false;
-  static rpcProviders = new Map();
 
   static init() {
     if (this.initialized) return;
@@ -291,7 +286,7 @@ export class Notification {
     return notification;
   }
 
-  static track(txHash, chainId, rpcUrl, options = {}) {
+  static track(tx, options = {}) {
     this.init();
 
     const config = {
@@ -304,26 +299,32 @@ export class Notification {
       ...options,
     };
 
-    const id = txHash;
+    const id = tx.hash;
 
     if (this.transactions.has(id)) {
       return id;
     }
 
-    const txElement = this.createTransaction(id, txHash, chainId, config);
+    const txElement = this.createTransaction(
+      id,
+      tx.hash,
+      Number(tx.chainId),
+      config,
+    );
     this.container.appendChild(txElement);
 
     this.transactions.set(id, {
       element: txElement,
       config,
       status: "pending",
+      tx,
     });
 
     requestAnimationFrame(() => {
       txElement.classList.add("show");
     });
 
-    this.watchTransaction(id, txHash, chainId, rpcUrl, config);
+    this.watchTransaction(id, config);
 
     return id;
   }
@@ -371,26 +372,16 @@ export class Notification {
     return `https://etherscan.io/tx/${txHash}`;
   }
 
-  static getRpcProvider(chainId, rpcUrl) {
-    const key = `${chainId}-${rpcUrl}`;
-    if (!this.rpcProviders.has(key)) {
-      this.rpcProviders.set(key, new ethers.JsonRpcProvider(rpcUrl));
-    }
-    return this.rpcProviders.get(key);
-  }
-
-  static async watchTransaction(id, txHash, chainId, rpcUrl, config) {
+  static async watchTransaction(id, config) {
     const txData = this.transactions.get(id);
     if (!txData) return;
 
     try {
-      const provider = this.getRpcProvider(chainId, rpcUrl);
-
       if (config.onPending) {
-        config.onPending(txHash);
+        config.onPending(txData.tx.hash);
       }
 
-      const receipt = await provider.waitForTransaction(txHash);
+      const receipt = await txData.tx.wait();
 
       if (!this.transactions.has(id)) return;
 
