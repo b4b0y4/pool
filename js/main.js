@@ -20,7 +20,6 @@ const CONFIG = {
     1: "0x3acd377dA549010a197b9Ed0F271e1f621e4b62e",
     42161: "0x7b0949204e7Da1B0beD6d4CCb68497F51621b574",
   },
-  gasReserve: 0.001,
   maxDecimals: 9,
 };
 
