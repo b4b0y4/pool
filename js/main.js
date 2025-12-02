@@ -425,10 +425,64 @@ class VaultApp {
       this.ui.elements.redeem.input.value = this.contracts.rawBalances.shares;
     });
 
-    this.ui.elements.wrap.maxEthBtn.addEventListener("click", () => {
-      const maxEth =
-        parseFloat(this.contracts.rawBalances.eth) - CONFIG.gasReserve;
-      this.ui.elements.wrap.input.value = maxEth > 0 ? maxEth.toString() : "0";
+    this.ui.elements.wrap.maxEthBtn.addEventListener("click", async () => {
+      try {
+        const provider = this.contracts.wallet.getEthersProvider();
+        const signer = await provider.getSigner();
+        const chainId = await this.contracts.wallet.getChainId();
+        const wethAddress = CONFIG.wethAddresses[chainId];
+
+        if (!wethAddress) {
+          this.ui.elements.wrap.input.value = "0";
+          Notification.show("WETH not available on this network", "warning");
+          return;
+        }
+
+        const ethBalance = ethers.parseEther(
+          this.contracts.rawBalances.eth || "0",
+        );
+        if (ethBalance === 0n) {
+          this.ui.elements.wrap.input.value = "0";
+          return;
+        }
+
+        const wethContract = new ethers.Contract(
+          wethAddress,
+          ABIS.weth,
+          signer,
+        );
+
+        // A dummy value for estimation, as gas for WETH deposit is not value-dependent.
+        const dummyValue = ethers.parseEther("0.000000000000000001");
+        const gasLimit = await wethContract.deposit.estimateGas({
+          value: dummyValue,
+        });
+
+        const feeData = await provider.getFeeData();
+
+        const gasPrice = feeData.maxFeePerGas || feeData.gasPrice;
+        if (!gasPrice) {
+          Notification.show("Could not determine gas price.", "danger");
+          return;
+        }
+
+        const gasCost = gasLimit * gasPrice;
+        const bufferedGasCost = gasCost * 3n;
+        const maxEth = ethBalance - bufferedGasCost;
+
+        if (maxEth <= 0n) {
+          this.ui.elements.wrap.input.value = "0";
+        } else {
+          this.ui.elements.wrap.input.value = ethers.formatEther(maxEth);
+        }
+      } catch (error) {
+        console.error("Error calculating max ETH:", error);
+        this.ui.elements.wrap.input.value = "0";
+        Notification.show(
+          error.message || "Error calculating max ETH",
+          "danger",
+        );
+      }
     });
 
     this.ui.elements.wrap.maxWethBtn.addEventListener("click", () => {
