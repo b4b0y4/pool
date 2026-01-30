@@ -379,6 +379,7 @@ class VaultApp {
     this.setupWalletEvents();
     this.setupUIEvents();
     this.contracts.updateBalances(this.ui);
+    this.ui.toggleAccordion(this.ui.elements.wrap.accordion);
   }
 
   setupWalletEvents() {
