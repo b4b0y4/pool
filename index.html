@@ -61,15 +61,15 @@
     <style>
       /* Base layout */
       :root {
-        --color-bg: #e4dbef;
+        --color-bg: #dbcffc;
         --color-txt: #1b1a1b;
         --vault-color-bg: color-mix(in srgb, var(--color-bg) 95%, black 10%);
         --vault-shadow: 0 4px 10px color-mix(in srgb, black 15%, transparent);
         --btn-color-hvr: color-mix(in srgb, var(--color-bg) 85%, black 15%);
       }
       [data-theme="dark"] {
-        --color-bg: #1b1a1b;
-        --color-txt: #c0a9f9;
+        --color-bg: #1e074b;
+        --color-txt: #dbcffc;
         --vault-color-bg: color-mix(in srgb, var(--color-bg) 92%, white 8%);
         --vault-shadow: 0 4px 10px color-mix(in srgb, black 40%, transparent);
         --btn-color-hvr: color-mix(in srgb, var(--color-bg) 85%, white 15%);
@@ -161,22 +161,6 @@
         background-color: transparent !important;
       }
       /* Accordion Styles */
-      #amount-input {
-        font-size: 1.1em;
-        color: var(--color-txt);
-        background: var(--color-bg);
-        border: 1px solid var(--connect-color-btn);
-        height: 44px;
-        padding: 7.5px 15px;
-        border-radius: 10px;
-        width: 100%;
-        box-sizing: border-box;
-        text-align: center;
-      }
-      #amount-input:focus {
-        outline: none;
-        border-color: var(--btn-color-hvr);
-      }
       .accordion-content {
         display: grid;
         gap: 15px;
@@ -253,6 +237,10 @@
       }
       .accordion-input:focus {
         outline: none;
+        border-color: var(--btn-color-hvr);
+      }
+      .accordion-input:focus + .btn-max {
+        border-color: var(--btn-color-hvr);
       }
       .btn-max {
         height: 44px;
