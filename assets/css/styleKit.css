@@ -674,8 +674,8 @@
   opacity: 0;
   transform: rotate(-90deg);
 }
-[data-selected-theme="light"][data-theme-source="manual"] #theme-light,
-[data-selected-theme="dark"][data-theme-source="manual"] #theme-dark,
+[data-selected-theme="light"][data-theme-source="light"] #theme-light,
+[data-selected-theme="dark"][data-theme-source="dark"] #theme-dark,
 [data-theme-source="system"] #theme-system {
   opacity: 1;
   transform: rotate(0);

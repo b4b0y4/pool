@@ -42,12 +42,14 @@
     <title>pool</title>
     <script>
       (() => {
-        const themes = ["light", "dark"];
-        const sys = matchMedia("(prefers-color-scheme: dark)").matches ? 1 : 0;
-        const cur = localStorage.themeOverride
-          ? themes.indexOf(localStorage.themeOverride)
-          : sys;
-        document.documentElement.dataset.theme = themes[cur];
+        const m = localStorage.themeMode;
+        const t =
+          m === "light" || m === "dark"
+            ? m
+            : matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+        document.documentElement.dataset.theme = t;
       })();
     </script>
     <link rel="icon" type="image/x-icon" href="./assets/img/favicon.ico" />
@@ -508,45 +510,33 @@
     </div>
 
     <script>
-      // theme.js
-      const themeManager = {
-        themes: ["light", "dark"],
-        sys: () => (matchMedia("(prefers-color-scheme: dark)").matches ? 1 : 0),
-        cur() {
-          return localStorage.themeOverride
-            ? this.themes.indexOf(localStorage.themeOverride)
-            : this.sys();
-        },
-        apply() {
-          let o = localStorage.themeOverride,
-            t = this.themes[this.cur()];
+      (() => {
+        const order = ["system", "light", "dark"];
+        const mq = matchMedia("(prefers-color-scheme: dark)");
+        const apply = () => {
+          const m = localStorage.themeMode || "system";
+          const t = m === "system" ? (mq.matches ? "dark" : "light") : m;
           Object.assign(document.documentElement.dataset, {
             theme: t,
-            themeSource: o ? "manual" : "system",
-            selectedTheme: o ? t : "",
+            themeSource: m,
+            selectedTheme: m === "system" ? "" : m,
           });
-        },
-        cycle() {
-          localStorage.themeOverride = this.themes[(this.cur() + 1) % 2];
-          this.apply();
-        },
-        reset() {
-          localStorage.removeItem("themeOverride");
-          this.apply();
-        },
-      };
-      document.addEventListener("DOMContentLoaded", () => {
-        let btn = document.getElementById("theme-btn");
-        if (btn) {
-          btn.onclick = () => themeManager.cycle();
-          btn.ondblclick = (e) => (e.preventDefault(), themeManager.reset());
-        }
-        matchMedia("(prefers-color-scheme: dark)").addEventListener(
-          "change",
-          () => !localStorage.themeOverride && themeManager.apply(),
-        );
-        themeManager.apply();
-      });
+        };
+        const cycle = () => {
+          const m = localStorage.themeMode || "system";
+          localStorage.themeMode = order[(order.indexOf(m) + 1) % 3];
+          apply();
+        };
+        document.addEventListener("DOMContentLoaded", () => {
+          const btn = document.getElementById("theme-btn");
+          if (btn) btn.onclick = cycle;
+          mq.addEventListener(
+            "change",
+            () => (localStorage.themeMode || "system") === "system" && apply(),
+          );
+          apply();
+        });
+      })();
     </script>
     <script type="module" src="./js/main.js"></script>
   </body>
