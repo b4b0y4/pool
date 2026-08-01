@@ -63,7 +63,7 @@
     <style>
       /* Base layout */
       :root {
-        --color-bg: #dbcffc;
+        --color-bg: #9E80EA;
         --color-txt: #1b1a1b;
         --vault-color-bg: color-mix(in srgb, var(--color-bg) 95%, black 10%);
         --vault-shadow: 0 4px 10px color-mix(in srgb, black 15%, transparent);
@@ -143,7 +143,7 @@
       .btn {
         font-size: 1.1em;
         color: var(--color-txt);
-        background: var(--connect-color-btn);
+        background: var(--dk-connect-color-btn);
         border: none;
         height: 44px;
         padding: 7.5px 15px;
@@ -170,16 +170,17 @@
         padding: 15px;
         border-radius: 10px;
         overflow: hidden;
+        box-sizing: content-box;
         transition: all 0.4s ease-in-out;
         max-height: 0;
         padding-top: 0;
         padding-bottom: 0;
-        border: 1px solid var(--connect-color-btn);
+        border: 1px solid var(--dk-connect-color-btn);
       }
       .accordion-content.open {
         padding-top: 15px;
         padding-bottom: 15px;
-        border-color: var(--connect-color-btn);
+        border-color: var(--dk-connect-color-btn);
       }
       .balance-display {
         display: flex;
@@ -223,7 +224,7 @@
         font-size: 1.1em;
         color: var(--color-txt);
         background: var(--color-bg);
-        border: 1px solid var(--connect-color-btn);
+        border: 1px solid var(--dk-connect-color-btn);
         height: 44px;
         padding: 7.5px 15px;
         border-radius: 10px 0 0 10px;
@@ -235,7 +236,7 @@
       }
       .accordion-input.wrap {
         border-radius: 10px;
-        border-right: 1px solid var(--connect-color-btn);
+        border-right: 1px solid var(--dk-connect-color-btn);
       }
       .accordion-input:focus {
         outline: none;
@@ -246,7 +247,7 @@
       }
       .btn-max {
         height: 44px;
-        border: 1px solid var(--connect-color-btn);
+        border: 1px solid var(--dk-connect-color-btn);
         border-left: 0;
         background: var(--color-bg);
         color: var(--color-txt);
@@ -261,7 +262,7 @@
       }
       .btn-execute {
         width: 100%;
-        background-color: var(--connect-color-btn);
+        background-color: var(--dk-connect-color-btn);
         transition: background-color 0.3s;
       }
       .btn-execute:hover {
@@ -289,7 +290,7 @@
     <!-- RPC Settings Modal -->
     <div id="rpc-modal" class="rpc-modal">
       <div class="rpc-modal-content">
-        <span class="rpc-close-btn">&times;</span>
+        <button type="button" class="rpc-close-btn" aria-label="Close"></button>
         <h2>Custom RPC Settings</h2>
         <div id="rpc-inputs"></div>
         <button id="save-rpc-btn">Save</button>
@@ -310,50 +311,6 @@
         <div class="header-right-group">
           <img id="network-logo" src="" alt="Network" class="network-logo" />
 
-          <!-- Theme Button -->
-          <button id="theme-btn" aria-label="Toggle theme" title="theme">
-            <svg
-              id="theme-light"
-              xmlns="http://www.w3.org/2000/svg"
-              width="26"
-              height="26"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="5" />
-              <path
-                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-              />
-            </svg>
-            <svg
-              id="theme-dark"
-              xmlns="http://www.w3.org/2000/svg"
-              width="26"
-              height="26"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-            </svg>
-            <svg
-              id="theme-system"
-              xmlns="http://www.w3.org/2000/svg"
-              width="26"
-              height="26"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-              <line x1="8" y1="21" x2="16" y2="21" />
-              <line x1="12" y1="17" x2="12" y2="21" />
-            </svg>
-          </button>
         </div>
       </div>
       <div class="row">
@@ -474,9 +431,10 @@
             gap: 10px;
           "
         >
-          <!-- Settings Button -->
-          <button id="settings-btn" aria-label="Settings" title="RPC Settings">
+          <!-- Theme Button -->
+          <button id="theme-btn" aria-label="Toggle theme" title="theme">
             <svg
+              id="theme-light"
               xmlns="http://www.w3.org/2000/svg"
               width="26"
               height="26"
@@ -484,19 +442,68 @@
               fill="none"
               stroke="currentColor"
               stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
             >
-              <circle cx="12" cy="12" r="3"></circle>
+              <circle cx="12" cy="12" r="5" />
               <path
-                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
-              ></path>
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+              />
+            </svg>
+            <svg
+              id="theme-dark"
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+            <svg
+              id="theme-system"
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
             </svg>
           </button>
+          <!-- Connect Widget -->
           <div class="connect-widget">
             <button id="connect-btn" class="connect-btn">Connect</button>
             <div id="connect-modal" class="connect-modal">
               <div class="connect-chain-list" id="connect-chain-list"></div>
+              <button
+                id="connect-rpc"
+                class="connect-rpc"
+                aria-label="Add RPC"
+                title="Add RPC"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                  ></path>
+                </svg>
+                Add RPC
+              </button>
               <div id="connect-get-wallet" class="connect-get-wallet">
                 <a href="https://ethereum.org/en/wallets/" target="_blank"
                   >Get a Wallet!</a

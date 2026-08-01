@@ -253,7 +253,7 @@ class ContractManager {
       console.error("Failed to update balances:", error);
       ui.elements.deposit.balance.innerText = "Error";
       ui.elements.redeem.balance.innerText = "Error";
-      Notification.show("Failed to load balances", "danger");
+      Notification.show("Failed to load balances", "error");
     }
   }
 
@@ -370,7 +370,9 @@ class ContractManager {
 // Main Application
 class VaultApp {
   constructor() {
-    this.wallet = new ConnectWallet();
+    this.wallet = new ConnectWallet({
+      showUnsupportedNetworkNotification: false,
+    });
     this.ui = new UIManager();
     this.contracts = new ContractManager(this.wallet);
   }
@@ -462,7 +464,7 @@ class VaultApp {
 
         const gasPrice = feeData.maxFeePerGas || feeData.gasPrice;
         if (!gasPrice) {
-          Notification.show("Could not determine gas price.", "danger");
+          Notification.show("Could not determine gas price.", "error");
           return;
         }
 
@@ -480,7 +482,7 @@ class VaultApp {
         this.ui.elements.wrap.input.value = "0";
         Notification.show(
           error.message || "Error calculating max ETH",
-          "danger",
+          "error",
         );
       }
     });
@@ -535,7 +537,7 @@ class VaultApp {
       console.error("Transaction error:", err);
       Notification.show(
         err.reason || err.message || "Transaction failed",
-        "danger",
+        "error",
       );
     }
   }
