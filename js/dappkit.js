@@ -434,6 +434,7 @@ export class ConnectWallet {
     this.storage = options.storage || window.localStorage;
     this.currentProvider = null;
     this.providerListeners = null;
+    this.autoConnect = options.autoConnect !== false;
     this.nameResolutionOrder = options.nameResolutionOrder || ["ens", "gns", "wns"];
     this.showUnsupportedNetworkNotification =
       options.showUnsupportedNetworkNotification !== false;
@@ -532,6 +533,8 @@ export class ConnectWallet {
     this.render();
     if (this.isConnected() && this.getLastWallet() === detail.info.name)
       this.syncConnectedProviderState(detail);
+    else if (this.autoConnect && !this.isConnected())
+      this.connectWallet(detail.info.name).catch(() => {});
   }
 
   requestProviderState(provider, method = "eth_accounts") {

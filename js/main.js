@@ -2,7 +2,6 @@ import { ethers } from "./libs/ethers.min.js";
 import {
   ConnectWallet,
   Notification,
-  getRpcUrl,
   networkConfigs,
 } from "./dappkit.js";
 
@@ -62,12 +61,6 @@ function getSupportedNetworksList() {
     })
     .filter(Boolean)
     .join(", ");
-}
-
-function getNetworkName(wallet, chainId) {
-  return Object.keys(wallet.networkConfigs).find(
-    (n) => wallet.networkConfigs[n].chainId === chainId,
-  );
 }
 
 // UI Manager
@@ -372,6 +365,7 @@ class VaultApp {
   constructor() {
     this.wallet = new ConnectWallet({
       showUnsupportedNetworkNotification: false,
+      autoConnect: true
     });
     this.ui = new UIManager();
     this.contracts = new ContractManager(this.wallet);
