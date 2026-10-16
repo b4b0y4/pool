@@ -572,7 +572,7 @@ input {
 
 #rpc-inputs input:focus {
   outline: none;
-  border-color: var(--dk-connect-color-hvr);
+  border-color: var(--focus-color);
 }
 
 #save-rpc-btn {
