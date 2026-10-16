@@ -268,7 +268,7 @@ input {
   bottom: 100%;
   right: 0;
   margin-bottom: var(--dk-space-md);
-  min-width: 200px;
+  min-width: 190px;
   padding: var(--dk-gap-sm);
   background-color: var(--color-bg);
   border: var(--dk-border-thin) solid var(--dk-connect-color-btn);
