@@ -268,7 +268,7 @@ input {
   bottom: 100%;
   right: 0;
   margin-bottom: var(--dk-space-md);
-  min-width: 180px;
+  min-width: 200px;
   padding: var(--dk-gap-sm);
   background-color: var(--color-bg);
   border: var(--dk-border-thin) solid var(--dk-connect-color-btn);
@@ -320,8 +320,8 @@ input {
 }
 
 .connect-chain-list button img {
-  width: var(--dk-icon-lg);
-  height: var(--dk-icon-lg);
+  width: var(--dk-icon-xl);
+  height: var(--dk-icon-xl);
   border: var(--dk-border-thin) solid var(--color-bg);
   border-radius: var(--dk-radius-round);
   flex-shrink: 0;
