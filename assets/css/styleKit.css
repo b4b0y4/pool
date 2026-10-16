@@ -191,6 +191,10 @@ input {
   gap: var(--dk-gap-md);
 }
 
+.connect-btn.connected:not(.name-resolved) {
+  font-size: var(--dk-font-sm);
+}
+
 .connect-btn.name-resolved {
   flex-direction: row-reverse;
   justify-content: space-between;
